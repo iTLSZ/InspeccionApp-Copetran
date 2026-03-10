@@ -1,13 +1,16 @@
 {
   "name": "busetas-app",
   "version": "1.0.0",
+  "homepage": "https://iTLSZ.github.io/InspeccionApp-Copetran",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "dev": "expo start -c --web"
+    "dev": "expo start -c --web",
+    "predeploy": "expo export -p web",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
@@ -15,16 +18,19 @@
     "@react-native-community/netinfo": "11.3.1",
     "@react-native-picker/picker": "2.7.5",
     "expo": "~51.0.0",
+    "expo-blur": "~13.0.3",
     "expo-constants": "~16.0.0",
     "expo-file-system": "~17.0.0",
     "expo-image-picker": "~15.0.0",
     "expo-router": "~3.5.0",
+    "expo-vector-icons": "^10.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.0",
     "react-native-web": "~0.19.10"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.0"
+    "@babel/core": "^7.24.0",
+    "gh-pages": "^6.3.0"
   }
 }

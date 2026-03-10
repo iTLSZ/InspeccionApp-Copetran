@@ -28,5 +28,8 @@ module.exports = {
       },
     },
     web: { bundler: 'metro' },
+    experiments: {
+      baseUrl: '/InspeccionApp-Copetran'
+    }
   },
 };

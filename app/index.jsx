@@ -4,8 +4,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   View, Text, FlatList, StyleSheet, TouchableOpacity,
-  RefreshControl, ActivityIndicator, Platform, Alert, Image
+  RefreshControl, ActivityIndicator, Platform, Alert, Image, Animated, Easing
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ReporteCard } from '../components/ReporteCard';
 import { getRows } from '../services/googleSheets';
@@ -18,6 +19,17 @@ export default function Inicio() {
   const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
   const { pendientes, sincronizando, conectado, sincronizar } = useSync();
+  const spinValue = React.useRef(new Animated.Value(0)).current;
+  const scaleValue = React.useRef(new Animated.Value(1)).current;
+
+  const handleNuevoReporte = () => {
+    Animated.sequence([
+      Animated.timing(scaleValue, { toValue: 0.93, duration: 100, useNativeDriver: true }),
+      Animated.spring(scaleValue, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true })
+    ]).start(() => {
+      router.push('/nuevo-reporte');
+    });
+  };
 
   const cargarReportes = useCallback(async () => {
     try {
@@ -35,8 +47,27 @@ export default function Inicio() {
 
   const onRefresh = () => {
     setRefrescando(true);
-    cargarReportes();
+
+    // Iniciar Animación
+    spinValue.setValue(0);
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 800,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+
+    cargarReportes().finally(() => {
+      spinValue.stopAnimation();
+    });
   };
+
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
 
   const handleSincronizar = async () => {
     const result = await sincronizar();
@@ -81,8 +112,11 @@ export default function Inicio() {
       {/* Título historial */}
       <View style={estilos.seccionHeader}>
         <Text style={estilos.seccionTitulo}>Últimos reportes</Text>
-        <TouchableOpacity onPress={onRefresh}>
-          <Text style={estilos.btnActualizar}>↻ Actualizar</Text>
+        <TouchableOpacity onPress={onRefresh} style={estilos.btnRotarContenedor}>
+          <Animated.View style={{ transform: [{ rotate: spin }] }}>
+            <MaterialIcons name="refresh" size={24} color="#1565C0" />
+          </Animated.View>
+          <Text style={estilos.btnActualizar}>Actualizar</Text>
         </TouchableOpacity>
       </View>
 
@@ -98,7 +132,6 @@ export default function Inicio() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ReporteCard reporte={item} />}
           contentContainerStyle={estilos.lista}
-          refreshControl={<RefreshControl refreshing={refrescando} onRefresh={onRefresh} tintColor="#1565C0" />}
           ListEmptyComponent={
             <View style={estilos.vacio}>
               <Text style={estilos.vacioIcono}>📋</Text>
@@ -110,10 +143,12 @@ export default function Inicio() {
       )}
 
       {/* FAB — Nuevo Reporte */}
-      <TouchableOpacity style={estilos.fab} onPress={() => router.push('/nuevo-reporte')}>
-        <Text style={estilos.fabIcono}>+</Text>
-        <Text style={estilos.fabTexto}>Nuevo Reporte</Text>
-      </TouchableOpacity>
+      <Animated.View style={[estilos.fabContainer, { transform: [{ scale: scaleValue }] }]}>
+        <TouchableOpacity style={estilos.fab} onPress={handleNuevoReporte} activeOpacity={0.8}>
+          <Text style={estilos.fabIcono}>+</Text>
+          <Text style={estilos.fabTexto}>Nuevo Reporte</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 }
@@ -150,7 +185,8 @@ const estilos = StyleSheet.create({
     paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8,
   },
   seccionTitulo: { fontSize: 16, fontWeight: '800', color: '#212121' },
-  btnActualizar: { fontSize: 14, color: '#1565C0', fontWeight: '600' },
+  btnRotarContenedor: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(21, 101, 192, 0.08)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  btnActualizar: { fontSize: 13, color: '#1565C0', fontWeight: '700', marginLeft: 4 },
   lista: { paddingHorizontal: 16, paddingBottom: 100 },
   cargando: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
   cargandoTexto: { color: '#9E9E9E', fontSize: 14 },
@@ -158,13 +194,15 @@ const estilos = StyleSheet.create({
   vacioIcono: { fontSize: 56, marginBottom: 16 },
   vacioTexto: { fontSize: 18, fontWeight: '700', color: '#424242' },
   vacioSub: { fontSize: 14, color: '#9E9E9E', marginTop: 6 },
-  fab: {
+  fabContainer: {
     position: 'absolute', bottom: 28, right: 20, left: 20,
+    shadowColor: '#1565C0', shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35, shadowRadius: 12, elevation: 8,
+  },
+  fab: {
     backgroundColor: '#1565C0', borderRadius: 16,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     paddingVertical: 16, gap: 8,
-    shadowColor: '#1565C0', shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35, shadowRadius: 12, elevation: 8,
   },
   fabIcono: { color: '#FFF', fontSize: 22, fontWeight: '300' },
   fabTexto: { color: '#FFF', fontSize: 17, fontWeight: '700' },

@@ -1,13 +1,12 @@
 // app/nuevo-reporte.jsx
 // Pantalla principal del formulario de reporte de daños
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  Switch, Alert, ActivityIndicator, Platform, Modal,
+  Switch, Alert, ActivityIndicator, Platform, Animated, Dimensions
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Picker } from '@react-native-picker/picker';
 import { FormField } from '../components/FormField';
 import { PhotoPicker } from '../components/PhotoPicker';
 import { useForm } from '../hooks/useForm';
@@ -15,17 +14,23 @@ import { appendRow, uploadPhoto } from '../services/googleSheets';
 import { saveLocal } from '../services/offline';
 import NetInfo from '@react-native-community/netinfo';
 
-const COMPONENTES = [
-  '', 'Motor', 'Carrocería', 'Frenos', 'Suspensión',
-  'Eléctrico', 'Neumáticos', 'Vidrios', 'Puertas',
-  'Aire acondicionado', 'Otro',
-];
-
 export default function NuevoReporte({ onGuardado }) {
   const router = useRouter();
   const { campos, errores, enviando, setEnviando, setcampo, validar, resetear } = useForm();
-  const [showComponentePicker, setShowComponentePicker] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
+
+  // Animación de entrada (Fade-In)
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
+  // Auto-fijar fecha y hora actual al abrir este componente y arrancar animación
+  useEffect(() => {
+    resetear();
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 350,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const handleEnviar = async () => {
     if (!validar()) {
@@ -67,7 +72,7 @@ export default function NuevoReporte({ onGuardado }) {
           setConfirmado(false);
           resetear();
           onGuardado?.();
-        }, 2000);
+        }, 600);
       } else {
         await saveLocal(reporte);
         Alert.alert(
@@ -99,7 +104,7 @@ export default function NuevoReporte({ onGuardado }) {
   };
 
   return (
-    <View style={estilos.contenedor}>
+    <Animated.View style={[estilos.contenedor, { opacity: fadeAnim }]}>
       {/* Header */}
       <View style={estilos.header}>
         <TouchableOpacity onPress={() => router.back()} style={estilos.btnVolver}>
@@ -116,11 +121,11 @@ export default function NuevoReporte({ onGuardado }) {
         <View style={estilos.fila2col}>
           <View style={{ flex: 1, marginRight: 8 }}>
             <FormField label="Fecha" valor={campos.fecha} onChange={(v) => setcampo('fecha', v)}
-              error={errores.fecha} obligatorio placeholder="DD/MM/AAAA" />
+              error={errores.fecha} obligatorio editable={false} placeholder="DD/MM/AAAA" />
           </View>
           <View style={{ flex: 1, marginLeft: 8 }}>
             <FormField label="Hora" valor={campos.hora} onChange={(v) => setcampo('hora', v)}
-              error={errores.hora} obligatorio placeholder="HH:MM" />
+              error={errores.hora} obligatorio editable={false} placeholder="HH:MM" />
           </View>
         </View>
 
@@ -147,19 +152,10 @@ export default function NuevoReporte({ onGuardado }) {
         {/* Sección: Hallazgo */}
         <Text style={estilos.seccion}>DETALLE DEL HALLAZGO</Text>
 
-        {/* Componente afectado */}
-        <View style={estilos.campoContenedor}>
-          <Text style={estilos.label}>COMPONENTE AFECTADO <Text style={estilos.asterisco}>*</Text></Text>
-          <TouchableOpacity
-            style={[estilos.selectorBoton, errores.componente && estilos.selectorError]}
-            onPress={() => setShowComponentePicker(true)}>
-            <Text style={campos.componente ? estilos.selectorTexto : estilos.selectorPlaceholder}>
-              {campos.componente || 'Seleccionar componente...'}
-            </Text>
-            <Text style={estilos.selectorArrow}>▼</Text>
-          </TouchableOpacity>
-          {errores.componente && <Text style={estilos.textoError}>⚠ {errores.componente}</Text>}
-        </View>
+        {/* Componente afectado - Ahora es un campo de texto */}
+        <FormField label="COMPONENTE AFECTADO" valor={campos.componente}
+          onChange={(v) => setcampo('componente', v)} error={errores.componente}
+          obligatorio placeholder="Ej. Motor, Espejo, Parachoques..." />
 
         <FormField label="Descripción del hallazgo" valor={campos.descripcion}
           onChange={(v) => setcampo('descripcion', v)} error={errores.descripcion}
@@ -204,26 +200,6 @@ export default function NuevoReporte({ onGuardado }) {
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Modal Picker Componente (iOS-friendly) */}
-      <Modal visible={showComponentePicker} transparent animationType="slide">
-        <View style={estilos.modalOverlay}>
-          <View style={estilos.modalContenido}>
-            <View style={estilos.modalHeader}>
-              <Text style={estilos.modalTitulo}>Componente afectado</Text>
-              <TouchableOpacity onPress={() => setShowComponentePicker(false)}>
-                <Text style={estilos.modalCerrar}>Listo</Text>
-              </TouchableOpacity>
-            </View>
-            <Picker selectedValue={campos.componente}
-              onValueChange={(v) => { setcampo('componente', v); }}>
-              {COMPONENTES.map((c) => (
-                <Picker.Item key={c} label={c || 'Seleccionar...'} value={c} />
-              ))}
-            </Picker>
-          </View>
-        </View>
-      </Modal>
-
       {/* Overlay de confirmación */}
       {confirmado && (
         <View style={estilos.confirmacionOverlay}>
@@ -234,7 +210,7 @@ export default function NuevoReporte({ onGuardado }) {
           </View>
         </View>
       )}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -256,20 +232,6 @@ const estilos = StyleSheet.create({
     borderBottomWidth: 2, borderBottomColor: '#E3F2FD', paddingBottom: 6,
   },
   fila2col: { flexDirection: 'row' },
-  // Selector
-  campoContenedor: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: '#616161', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 },
-  asterisco: { color: '#D32F2F' },
-  selectorBoton: {
-    backgroundColor: '#F5F5F5', borderWidth: 1.5, borderColor: '#E0E0E0',
-    borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-  },
-  selectorError: { borderColor: '#D32F2F', backgroundColor: '#FFF8F8' },
-  selectorTexto: { fontSize: 15, color: '#212121' },
-  selectorPlaceholder: { fontSize: 15, color: '#BDBDBD' },
-  selectorArrow: { color: '#9E9E9E' },
-  textoError: { color: '#D32F2F', fontSize: 12, marginTop: 4 },
   // Switch
   switchFila: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -289,15 +251,6 @@ const estilos = StyleSheet.create({
   btnEnviarTexto: { color: '#FFF', fontSize: 17, fontWeight: '700' },
   btnLimpiar: { alignItems: 'center', paddingVertical: 12, marginTop: 8 },
   btnLimpiarTexto: { color: '#9E9E9E', fontSize: 14 },
-  // Modal
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
-  modalContenido: { backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-  modalHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    padding: 16, borderBottomWidth: 1, borderBottomColor: '#F0F0F0',
-  },
-  modalTitulo: { fontSize: 16, fontWeight: '700', color: '#212121' },
-  modalCerrar: { fontSize: 16, color: '#1565C0', fontWeight: '600' },
   // Confirmación
   confirmacionOverlay: {
     ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)',

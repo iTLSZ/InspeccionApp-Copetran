@@ -5,8 +5,16 @@ import { useState } from 'react';
 
 const CAMPOS_REQUERIDOS = ['fecha', 'hora', 'placa', 'componente', 'descripcion', 'responsable'];
 
+const formatearFechaAgradable = () => {
+  const fecha = new Date();
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const anio = fecha.getFullYear();
+  return `${dia}/${mes}/${anio}`;
+};
+
 const ESTADO_INICIAL = {
-  fecha: new Date().toLocaleDateString('es-CO'),
+  fecha: formatearFechaAgradable(),
   hora: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
   poblacion: '',
   numeroBuseta: '',
@@ -57,7 +65,7 @@ export function useForm() {
   const resetear = () => {
     setCampos({
       ...ESTADO_INICIAL,
-      fecha: new Date().toLocaleDateString('es-CO'),
+      fecha: formatearFechaAgradable(),
       hora: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
     });
     setErrores({});
