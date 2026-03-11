@@ -7,7 +7,7 @@ import {
   RefreshControl, ActivityIndicator, Platform, Alert, Image, Animated, Easing
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { ReporteCard } from '../components/ReporteCard';
 import { getRows } from '../services/googleSheets';
 import { useSync } from '../hooks/useSync';
@@ -43,7 +43,19 @@ export default function Inicio() {
     }
   }, []);
 
-  useEffect(() => { cargarReportes(); }, []);
+  // Hook que se ejecuta cada vez que el usuario ve esta pantalla, más auto-Actualizador
+  useFocusEffect(
+    useCallback(() => {
+      cargarReportes();
+
+      // Sincronización transparente en segundo plano cada 12 segundos
+      const intervalo = setInterval(() => {
+        cargarReportes();
+      }, 12000);
+
+      return () => clearInterval(intervalo);
+    }, [cargarReportes])
+  );
 
   const onRefresh = () => {
     setRefrescando(true);
@@ -55,7 +67,7 @@ export default function Inicio() {
         toValue: 1,
         duration: 800,
         easing: Easing.linear,
-        useNativeDriver: true,
+        useNativeDriver: false, // Arregla el warning amarillo en Web
       })
     ).start();
 
@@ -121,10 +133,10 @@ export default function Inicio() {
       </View>
 
       {/* Lista */}
-      {cargando ? (
+      {cargando && reportes.length === 0 ? (
         <View style={estilos.cargando}>
           <ActivityIndicator size="large" color="#1565C0" />
-          <Text style={estilos.cargandoTexto}>Cargando reportes...</Text>
+          <Text style={estilos.cargandoTexto}>Sincronizando con Excel...</Text>
         </View>
       ) : (
         <FlatList

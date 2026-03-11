@@ -28,11 +28,13 @@ export default function NuevoReporte({ onGuardado }) {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 350,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   }, []);
 
   const handleEnviar = async () => {
+    if (enviando || confirmado) return; // ✅ Bloquear el doble click
+
     if (!validar()) {
       Alert.alert('Campos requeridos', 'Por favor completa todos los campos obligatorios marcados con *');
       return;
@@ -71,13 +73,19 @@ export default function NuevoReporte({ onGuardado }) {
       };
 
       if (hayConexion) {
-        await appendRow(reporte);
+        // Envio Silencioso: Disparamos la carga al excel sin colgar la UI del conductor
+        appendRow(reporte).catch(async (err) => {
+          console.error("Error silencioso en Web, salvando local", err.message);
+          await saveLocal(reporte); // Failsafe
+        });
+
         setConfirmado(true);
         setTimeout(() => {
           setConfirmado(false);
           resetear();
-          onGuardado?.();
-        }, 600);
+          if (onGuardado) onGuardado();
+          router.back();
+        }, 550); // Cierra super rápido en medio segundo
       } else {
         await saveLocal(reporte);
         Alert.alert(
