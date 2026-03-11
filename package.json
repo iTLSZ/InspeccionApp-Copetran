@@ -8,8 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "dev": "expo start -c --web",
-    "deploy": "expo export -p web && cd dist && type nul > .nojekyll && git init && git add . && git commit -m \"Nuevo Deploy\" && git push -f origin HEAD:gh-pages"
+    "dev": "expo start -c --web"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
