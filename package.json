@@ -1,5 +1,5 @@
 {
-  "name": "busetas-app",
+  "name": "inspeccion-app",
   "version": "1.0.0",
   "homepage": "https://iTLSZ.github.io/InspeccionApp-Copetran",
   "main": "expo-router/entry",
@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "dev": "expo start -c --web",
-    "build:docs": "expo export -p web && rd /s /q docs 2>nul || rm -rf docs || true && move dist docs || mv dist docs || true"
+    "build:docs": "expo export -p web && rd /s /q docs 2>nul || rm -rf docs || true && move dist docs || mv dist docs || true && type nul > docs\\.nojekyll"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
