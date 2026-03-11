@@ -27,20 +27,32 @@ export async function appendRow(reporte) {
     reporte.observaciones || '',
   ];
 
-  const response = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({
-      action: 'appendRow',
-      values: fila,
-    }),
-  });
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'appendRow',
+        values: fila,
+      }),
+    });
 
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error(`Error en Apps Script: ${data.error}`);
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error(`Servidor devolvió respuesta inválida: ${text.substring(0, 100)}...`);
+    }
+
+    if (!data.success) {
+      throw new Error(`Error en el Script: ${data.error || 'Desconocido'}`);
+    }
+    return data;
+  } catch (error) {
+    console.error('Fallo en conectividad POST Excel:', error.message);
+    throw error;
   }
-  return data;
 }
 
 /**

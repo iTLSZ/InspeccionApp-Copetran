@@ -40,8 +40,13 @@ export default function NuevoReporte({ onGuardado }) {
 
     setEnviando(true);
     try {
-      const netState = await NetInfo.fetch();
-      const hayConexion = netState.isConnected && netState.isInternetReachable;
+      let hayConexion = false;
+      if (Platform.OS === 'web') {
+        hayConexion = navigator.onLine;
+      } else {
+        const netState = await NetInfo.fetch();
+        hayConexion = netState.isConnected && netState.isInternetReachable !== false;
+      }
 
       let linkFoto = '';
       if (campos.fotoUri && hayConexion) {
@@ -85,7 +90,7 @@ export default function NuevoReporte({ onGuardado }) {
       console.error('Error al enviar reporte:', error);
       Alert.alert(
         'Error al enviar',
-        'Hubo un problema. ¿Deseas guardar el reporte localmente?',
+        `Hubo un problema: ${error.message}. ¿Deseas guardar el reporte localmente?`,
         [
           { text: 'Cancelar', style: 'cancel' },
           {

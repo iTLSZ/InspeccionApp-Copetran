@@ -2,6 +2,7 @@
 // Hook para manejar la sincronización offline y detectar conectividad
 
 import { useState, useEffect, useCallback } from 'react';
+import { Platform } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { getPending, syncPending } from '../services/offline';
 import { APPS_SCRIPT_URL } from '../app/config';
@@ -39,43 +40,58 @@ export function useSync() {
     actualizarPendientes();
 
     const checkConexionConExcel = async (tieneInternet) => {
+      // Ignorar chequeo si está explícitamente sin internet
       if (!tieneInternet) {
         setConectado(false);
         return;
       }
       try {
-        // Hacemos una llamada ligera para verificar si nuestra nube Excel responde
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 segundos de tiempo de espera
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
         const res = await fetch(APPS_SCRIPT_URL, { signal: controller.signal });
         clearTimeout(timeoutId);
 
-        // Si responde cualquier texto, asumimos éxito (no importa si es JSON válido)
         const text = await res.text();
         const respondeConexion = res.ok && text.length > 0;
 
         setConectado(respondeConexion);
 
-        // Auto-sincronizar al recuperar conexión
         if (respondeConexion) {
           sincronizar();
         }
       } catch (error) {
         console.log("No se pudo contactar al Excel:", error.message);
-        setConectado(false); // Hay internet, pero el Excel no está alcanzable
+        setConectado(false);
       }
     };
 
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      const estaConectado = state.isConnected && state.isInternetReachable !== false;
-      checkConexionConExcel(estaConectado);
-    });
+    if (Platform.OS === 'web') {
+      // En Web los navegadores tienen su propio detector (evita bug 404 de NetInfo)
+      const handleOnline = () => checkConexionConExcel(true);
+      const handleOffline = () => setConectado(false);
 
-    // Validar por primera vez al encender la app
-    NetInfo.fetch().then(state => checkConexionConExcel(state.isConnected && state.isInternetReachable !== false));
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
 
-    return () => unsubscribe();
+      // Chequeo inicial
+      checkConexionConExcel(navigator.onLine);
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    } else {
+      // En nativo (iOS/Android) NetInfo funciona perfecto
+      const unsubscribe = NetInfo.addEventListener((state) => {
+        const estaConectado = state.isConnected && state.isInternetReachable !== false;
+        checkConexionConExcel(estaConectado);
+      });
+
+      NetInfo.fetch().then(state => checkConexionConExcel(state.isConnected && state.isInternetReachable !== false));
+
+      return () => unsubscribe();
+    }
   }, []);
 
   return {
