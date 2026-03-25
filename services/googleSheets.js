@@ -120,20 +120,28 @@ export async function getRows(limite = 20) {
 
   const filas = data.values || [];
 
-  return filas.slice(-limite).reverse().map((fila, idx) => ({
-    id: `row_${idx}`,
-    fecha:        fila[0]  || '',
-    hora:         fila[1]  || '',
-    poblacion:    fila[2]  || '',
-    numeroBuseta: fila[3]  || '',
-    placa:        fila[4]  || '',
-    linkFoto:     fila[11] || fila[5] || '',  // col 12 = URL foto para la app, col 6 = fallback
-    componente:   fila[6]  || '',
-    descripcion:  fila[7]  || '',
-    preliminar:   fila[8]  === 'Sí',
-    responsable:  fila[9]  || '',
-    observaciones:fila[10] || '',
-  }));
+  return filas.slice(-limite).reverse().map((fila, idx) => {
+    let f = fila[0] || '';
+    if (f.includes('T')) {
+      const [yyyy, mm, dd] = f.split('T')[0].split('-');
+      f = `${dd}/${mm}/${yyyy}`;
+    }
+    
+    return {
+      id: `row_${idx}`,
+      fecha:        f,
+      hora:         fila[1]  || '',
+      poblacion:    fila[2]  || '',
+      numeroBuseta: fila[3]  || '',
+      placa:        fila[4]  || '',
+      linkFoto:     fila[11] || fila[5] || '',  // col 12 = URL foto para la app, col 6 = fallback
+      componente:   fila[6]  || '',
+      descripcion:  fila[7]  || '',
+      preliminar:   fila[8]  === 'Sí',
+      responsable:  fila[9]  || '',
+      observaciones:fila[10] || '',
+    };
+  });
 }
 
 // ─── Compatibilidad (no se usa, sólo por si hay código que la llame) ────────

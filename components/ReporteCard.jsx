@@ -6,27 +6,27 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Image,
   Modal, Pressable, Animated,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const COMPONENTES = {
-  'DEFENSAS':           { color: '#3B82F6', icono: 'shield-car' },
-  'FAROS DELANTEROS':   { color: '#F59E0B', icono: 'car-light-high' },
-  'DIRECCIONALES':      { color: '#FCD34D', icono: 'car-shift-pattern' },
-  'PANORÁMICO':         { color: '#06B6D4', icono: 'window-maximize' },
-  'RETROVISORES':       { color: '#64748B', icono: 'mirror-rectangle' },
-  'PUERTAS':            { color: '#22C55E', icono: 'car-door' },
-  'VENTANAS':           { color: '#38BDF8', icono: 'window-closed' },
-  'CARROCERÍA LATERAL': { color: '#A855F7', icono: 'car-sports' },
-  'ESTRIBOS':           { color: '#8B5CF6', icono: 'shoe-formal' },
-  'LLANTAS':            { color: '#1F2937', icono: 'tire' },
-  'GUARDABARROS':       { color: '#475569', icono: 'shield-half-full' },
-  'VIDRIO TRASERO':     { color: '#0EA5E9', icono: 'aspect-ratio' },
-  'PLACAS':             { color: '#EAB308', icono: 'numeric' },
-  'TECHO':              { color: '#94A3B8', icono: 'arrow-split-horizontal' },
-  'LEVAS':              { color: '#EF4444', icono: 'car-cog' },
-  'OTRO':               { color: '#94A3B8', icono: 'dots-horizontal-circle-outline' },
+  'DEFENSAS':           { color: '#3B82F6', icono: 'shield' },
+  'FAROS DELANTEROS':   { color: '#F59E0B', icono: 'highlight' },
+  'DIRECCIONALES':      { color: '#FCD34D', icono: 'swap-horiz' },
+  'PANORÁMICO':         { color: '#06B6D4', icono: 'aspect-ratio' },
+  'RETROVISORES':       { color: '#64748B', icono: 'flip-to-back' },
+  'PUERTAS':            { color: '#22C55E', icono: 'meeting-room' },
+  'VENTANAS':           { color: '#38BDF8', icono: 'crop-square' },
+  'CARROCERÍA LATERAL': { color: '#A855F7', icono: 'directions-bus' },
+  'ESTRIBOS':           { color: '#8B5CF6', icono: 'format-line-spacing' },
+  'LLANTAS':            { color: '#1F2937', icono: 'donut-large' },
+  'GUARDABARROS':       { color: '#475569', icono: 'security' },
+  'VIDRIO TRASERO':     { color: '#0EA5E9', icono: 'picture-in-picture' },
+  'PLACAS':             { color: '#EAB308', icono: 'format-list-numbered' },
+  'TECHO':              { color: '#94A3B8', icono: 'vertical-align-top' },
+  'LEVAS':              { color: '#EF4444', icono: 'settings' },
+  'OTRO':               { color: '#94A3B8', icono: 'more-horiz' },
 };
-const DEFAULT_INFO = { color: '#6366F1', icono: 'text-box-search-outline' };
+const DEFAULT_INFO = { color: '#6366F1', icono: 'find-in-page' };
 
 export function ReporteCard({ reporte }) {
   // Si no está en la lista exacta, buscamos o asignamos default
@@ -56,7 +56,7 @@ export function ReporteCard({ reporte }) {
               </>
             ) : (
               <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '1A' }]}>
-                <MaterialCommunityIcons name={info.icono} size={32} color={info.color} style={{ opacity: 0.7 }} />
+                <MaterialIcons name={info.icono} size={32} color={info.color} style={{ opacity: 0.7 }} />
                 <Text style={estilos.placeholderTexto}>Sin foto</Text>
               </View>
             )}
@@ -78,7 +78,7 @@ export function ReporteCard({ reporte }) {
 
             {/* Componente con icono de Material + color */}
             <View style={[estilos.componenteBadge, { backgroundColor: info.color + '18' }]}>
-              <MaterialCommunityIcons name={info.icono} size={14} color={info.color} />
+              <MaterialIcons name={info.icono} size={14} color={info.color} />
               <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
                 {reporte.componente || 'Sin componente'}
               </Text>

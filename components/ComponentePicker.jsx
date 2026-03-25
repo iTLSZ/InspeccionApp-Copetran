@@ -6,25 +6,25 @@ import {
   View, Text, TouchableOpacity, Modal, FlatList,
   StyleSheet, Platform, Pressable,
 } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const COMPONENTES_INFO = [
-  { nombre: 'DEFENSAS', icono: 'shield-car', color: '#3B82F6' },
-  { nombre: 'FAROS DELANTEROS', icono: 'car-light-high', color: '#F59E0B' },
-  { nombre: 'DIRECCIONALES', icono: 'car-shift-pattern', color: '#FCD34D' },
-  { nombre: 'PANORÁMICO', icono: 'window-maximize', color: '#06B6D4' },
-  { nombre: 'RETROVISORES', icono: 'mirror-rectangle', color: '#64748B' },
-  { nombre: 'PUERTAS', icono: 'car-door', color: '#22C55E' },
-  { nombre: 'VENTANAS', icono: 'window-closed', color: '#38BDF8' },
-  { nombre: 'CARROCERÍA LATERAL', icono: 'car-sports', color: '#A855F7' },
-  { nombre: 'ESTRIBOS', icono: 'shoe-formal', color: '#8B5CF6' },
-  { nombre: 'LLANTAS', icono: 'tire', color: '#1F2937' },
-  { nombre: 'GUARDABARROS', icono: 'shield-half-full', color: '#475569' },
-  { nombre: 'VIDRIO TRASERO', icono: 'aspect-ratio', color: '#0EA5E9' },
-  { nombre: 'PLACAS', icono: 'numeric', color: '#EAB308' },
-  { nombre: 'TECHO', icono: 'arrow-split-horizontal', color: '#94A3B8' },
-  { nombre: 'LEVAS', icono: 'car-cog', color: '#EF4444' },
-  { nombre: 'OTRO', icono: 'dots-horizontal-circle-outline', color: '#94A3B8' }
+  { nombre: 'DEFENSAS', icono: 'shield', color: '#3B82F6' },
+  { nombre: 'FAROS DELANTEROS', icono: 'highlight', color: '#F59E0B' },
+  { nombre: 'DIRECCIONALES', icono: 'swap-horiz', color: '#FCD34D' },
+  { nombre: 'PANORÁMICO', icono: 'aspect-ratio', color: '#06B6D4' },
+  { nombre: 'RETROVISORES', icono: 'flip-to-back', color: '#64748B' },
+  { nombre: 'PUERTAS', icono: 'meeting-room', color: '#22C55E' },
+  { nombre: 'VENTANAS', icono: 'crop-square', color: '#38BDF8' },
+  { nombre: 'CARROCERÍA LATERAL', icono: 'directions-bus', color: '#A855F7' },
+  { nombre: 'ESTRIBOS', icono: 'format-line-spacing', color: '#8B5CF6' },
+  { nombre: 'LLANTAS', icono: 'donut-large', color: '#1F2937' },
+  { nombre: 'GUARDABARROS', icono: 'security', color: '#475569' },
+  { nombre: 'VIDRIO TRASERO', icono: 'picture-in-picture', color: '#0EA5E9' },
+  { nombre: 'PLACAS', icono: 'format-list-numbered', color: '#EAB308' },
+  { nombre: 'TECHO', icono: 'vertical-align-top', color: '#94A3B8' },
+  { nombre: 'LEVAS', icono: 'settings', color: '#EF4444' },
+  { nombre: 'OTRO', icono: 'more-horiz', color: '#94A3B8' }
 ];
 
 export function ComponentePicker({ valor, onChange, error }) {
@@ -35,7 +35,7 @@ export function ComponentePicker({ valor, onChange, error }) {
     setAbierto(false);
   };
 
-  const seleccionActual = COMPONENTES_INFO.find(c => c.nombre === valor) || { nombre: valor, icono: 'text-box-search-outline', color: '#4338CA' };
+  const seleccionActual = COMPONENTES_INFO.find(c => c.nombre === valor) || { nombre: valor, icono: 'find-in-page', color: '#4338CA' };
 
   return (
     <View style={estilos.contenedor}>
@@ -50,7 +50,7 @@ export function ComponentePicker({ valor, onChange, error }) {
       >
         {valor ? (
           <View style={estilos.valorFila}>
-            <MaterialCommunityIcons name={seleccionActual.icono} size={20} color={seleccionActual.color} />
+            <MaterialIcons name={seleccionActual.icono} size={20} color={seleccionActual.color} />
             <Text style={estilos.selectorTextoValor}>{valor}</Text>
           </View>
         ) : (
@@ -88,7 +88,7 @@ export function ComponentePicker({ valor, onChange, error }) {
                   >
                     <View style={estilos.opcionFila}>
                       <View style={[estilos.iconoCaja, { backgroundColor: item.color + '1A' }]}>
-                        <MaterialCommunityIcons name={item.icono} size={18} color={item.color} />
+                        <MaterialIcons name={item.icono} size={18} color={item.color} />
                       </View>
                       <Text style={[estilos.opcionTexto, estaSeleccionado && estilos.opcionTextoActivo]}>
                         {item.nombre}
