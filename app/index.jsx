@@ -119,11 +119,18 @@ export default function Inicio() {
           opacity: headerOpacity,
           transform: [{ translateY: headerSlide }]
         }]}>
-          <Text style={estilos.headerEmpresa} numberOfLines={1}>{NOMBRE_EMPRESA}</Text>
-          <Text style={estilos.headerSub}>Sistema de Inspección de Equipos</Text>
-          <View style={[estilos.statusPill, conectado ? estilos.statusOnline : estilos.statusOffline]}>
-            <View style={[estilos.statusDot, { backgroundColor: conectado ? '#4ADE80' : '#F87171' }]} />
-            <Text style={estilos.statusTexto}>{conectado ? 'En línea' : 'Sin conexión'}</Text>
+          <View style={estilos.logoFila}>
+            <View style={estilos.logoWrapper}>
+              <Image source={require('../public/logoouser.png')} style={estilos.logo} resizeMode="contain" />
+            </View>
+            <View style={estilos.headerTextos}>
+              <Text style={estilos.headerEmpresa} numberOfLines={1}>{NOMBRE_EMPRESA}</Text>
+              <Text style={estilos.headerSub}>Sistema de Inspección</Text>
+            </View>
+            <View style={[estilos.statusPill, conectado ? estilos.statusOnline : estilos.statusOffline]}>
+              <View style={[estilos.statusDot, { backgroundColor: conectado ? '#4ADE80' : '#F87171' }]} />
+              <Text style={estilos.statusTexto}>{conectado ? 'Online' : 'Offline'}</Text>
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -141,12 +148,12 @@ export default function Inicio() {
         </TouchableOpacity>
       </View>
 
-      {/* Badge nuevo reporte */}
+      {/* Botón de actualizar (nuevos registros) */}
       {nuevoDisponible && (
         <Animated.View style={{ transform: [{ scale: badgePulse }], marginHorizontal: 16, marginBottom: 8 }}>
           <TouchableOpacity style={estilos.nuevoBadge} onPress={cargarNuevos} activeOpacity={0.85}>
-            <MaterialIcons name="arrow-upward" size={15} color="#FFF" />
-            <Text style={estilos.nuevoBadgeTexto}>¡Nuevo reporte disponible! — Toca para ver</Text>
+            <MaterialIcons name="sync" size={18} color="#FFF" />
+            <Text style={estilos.nuevoBadgeTexto}>Actualizar — Hay nuevos registros</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -191,14 +198,13 @@ export default function Inicio() {
 const estilos = StyleSheet.create({
   contenedor: { flex: 1, backgroundColor: '#F8FAFC' },
 
-  // ── Header centrado ──
+  // ── Header horizontal ──
   header: {
     backgroundColor: '#4338CA',
     paddingTop: Platform.OS === 'ios' ? 54 : 32,
     paddingBottom: 24,
     paddingHorizontal: 20,
     overflow: 'hidden',
-    alignItems: 'center',
   },
   headerCirculo1: {
     position: 'absolute', width: 200, height: 200,
@@ -208,26 +214,27 @@ const estilos = StyleSheet.create({
     position: 'absolute', width: 140, height: 140,
     borderRadius: 70, backgroundColor: 'rgba(255,255,255,0.07)', top: 20, right: 80,
   },
-  headerInner: { alignItems: 'center', gap: 8 },
+  headerInner: { gap: 16 },
+  logoFila: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   logoWrapper: {
-    width: 64, height: 64, borderRadius: 18,
+    width: 52, height: 52, borderRadius: 14,
     backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.25)',
-    marginBottom: 4,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
   },
-  logo: { width: 48, height: 48 },
-  headerEmpresa: { color: '#FFFFFF', fontSize: 18, fontWeight: '900', textAlign: 'center' },
-  headerSub: { color: 'rgba(255,255,255,0.65)', fontSize: 12, textAlign: 'center' },
+  logo: { width: 40, height: 40 },
+  headerTextos: { flex: 1 },
+  headerEmpresa: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
+  headerSub: { color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 2 },
   statusPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', marginTop: 4,
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
   },
-  statusOnline:  { backgroundColor: 'rgba(74,222,128,0.15)' },
+  statusOnline: { backgroundColor: 'rgba(74,222,128,0.15)' },
   statusOffline: { backgroundColor: 'rgba(248,113,113,0.15)' },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusTexto: { color: '#FFF', fontSize: 12, fontWeight: '700' },
+  statusDot: { width: 7, height: 7, borderRadius: 4 },
+  statusTexto: { color: '#FFF', fontSize: 11, fontWeight: '700' },
 
   // ── Sección ──
   seccionHeader: {
