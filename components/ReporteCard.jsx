@@ -98,6 +98,9 @@ export function ReporteCard({ reporte }) {
                     </View>
                   )}
                 </View>
+                {reporte.poblacion ? (
+                  <Text style={estilos.poblacionIzquierda} numberOfLines={1}>📍 {reporte.poblacion}</Text>
+                ) : null}
               </View>
 
               {/* Col Derecha: Tiempo + Responsable + Población */}
@@ -109,9 +112,6 @@ export function ReporteCard({ reporte }) {
                   <Text style={estilos.responsableDestacado} numberOfLines={1}>
                     👤 {reporte.responsable}
                   </Text>
-                  {reporte.poblacion ? (
-                    <Text style={estilos.poblacionDestacada} numberOfLines={1}>📍 {reporte.poblacion}</Text>
-                  ) : null}
                 </View>
               </View>
             </View>
@@ -215,7 +215,8 @@ const estilos = StyleSheet.create({
   
   responsableContenedorWrapper: { gap: 2, alignItems: 'flex-end', marginTop: 6, width: '100%' },
   responsableDestacado: { fontSize: 13, fontWeight: '900', color: '#1E293B', textAlign: 'right' },
-  poblacionDestacada: { fontSize: 12, fontWeight: '700', color: '#64748B', textAlign: 'right' },
+  
+  poblacionIzquierda: { fontSize: 13, fontWeight: '700', color: '#64748B', marginTop: 2 },
   
   observacionContenedor: { backgroundColor: '#F8FAFC', padding: 8, borderRadius: 8, marginTop: 4 },
   observacionTexto: { fontSize: 12, color: '#475569', lineHeight: 18, fontStyle: 'italic' },
