@@ -98,9 +98,10 @@ export function ReporteCard({ reporte }) {
                     </View>
                   )}
                 </View>
-                {reporte.poblacion ? (
-                  <Text style={estilos.poblacionIzquierda} numberOfLines={1}>📍 {reporte.poblacion}</Text>
-                ) : null}
+                <Text style={estilos.poblacionIzquierda} numberOfLines={1}>
+                  👤 {reporte.responsable}
+                  {reporte.poblacion ? ` | 📍 ${reporte.poblacion}` : ''}
+                </Text>
               </View>
 
               {/* Col Derecha: Tiempo + Responsable + Población */}
@@ -108,11 +109,7 @@ export function ReporteCard({ reporte }) {
                 <Text style={estilos.horaDestacada}>{reporte.hora}</Text>
                 <Text style={estilos.fechaDestacada}>{fechaMostrar}</Text>
                 
-                <View style={estilos.responsableContenedorWrapper}>
-                  <Text style={estilos.responsableDestacado} numberOfLines={1}>
-                    👤 {reporte.responsable}
-                  </Text>
-                </View>
+                {/* Responsable se movió a Col Izquierda con Población */}
               </View>
             </View>
 

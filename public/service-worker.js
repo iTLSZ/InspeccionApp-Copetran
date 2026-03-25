@@ -7,7 +7,7 @@ const CACHE_NAME = 'inspeccionapp-v1';
 const PRECACHE_URLS = [
   '/InspeccionApp-Copetran/',
   '/InspeccionApp-Copetran/index.html',
-  '/InspeccionApp-Copetran/ICON.png',
+  '/InspeccionApp-Copetran/logoouser.png',
   '/InspeccionApp-Copetran/manifest.json',
 ];
 
