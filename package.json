@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "dev": "expo start -c --web",
-    "deploy": "expo export -p web --output-dir docs && copy public\\manifest.json docs\\manifest.json && copy public\\service-worker.js docs\\service-worker.js && type nul > docs\\.nojekyll && git add docs && git commit -m \"deploy: produccion PWA\" && git push origin main"
+    "deploy": "expo export -p web --output-dir docs && copy public\\ICON.png docs\\ICON.png && copy public\\manifest.json docs\\manifest.json && copy public\\service-worker.js docs\\service-worker.js && type nul > docs\\.nojekyll && git add docs && git commit -m \"deploy: produccion PWA\" && git push origin main"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
