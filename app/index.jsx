@@ -21,6 +21,8 @@ export default function Inicio() {
   const [nuevoDisponible, setNuevoDisponible] = useState(false);
   const contadorRef = useRef(null);
   const { pendientes, sincronizando, conectado, sincronizar } = useSync();
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  
   const spinValue = useRef(new Animated.Value(0)).current;
   const scaleValue = useRef(new Animated.Value(1)).current;
   const headerOpacity = useRef(new Animated.Value(0)).current;
@@ -32,6 +34,16 @@ export default function Inicio() {
       Animated.timing(headerOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.spring(headerSlide, { toValue: 0, friction: 8, tension: 40, useNativeDriver: true }),
     ]).start();
+
+    // Lógica para capturar prompt de instalación PWA en navegadores compatibles
+    if (Platform.OS === 'web') {
+      const handler = (e) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+      };
+      window.addEventListener('beforeinstallprompt', handler);
+      return () => window.removeEventListener('beforeinstallprompt', handler);
+    }
   }, []);
 
   useEffect(() => {
@@ -107,6 +119,15 @@ export default function Inicio() {
     }
   };
 
+  const handleInstallPWA = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
+
   return (
     <View style={estilos.contenedor}>
 
@@ -147,6 +168,16 @@ export default function Inicio() {
           </Animated.View>
         </TouchableOpacity>
       </View>
+
+      {/* Botón Instalar App PWA */}
+      {deferredPrompt && (
+        <View style={{ marginHorizontal: 16, marginBottom: 8 }}>
+          <TouchableOpacity style={estilos.btnInstalarPWA} onPress={handleInstallPWA} activeOpacity={0.85}>
+            <Text style={{ fontSize: 16 }}>📲</Text>
+            <Text style={estilos.btnInstalarTexto}>Instalar aplicación en el dispositivo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Botón de actualizar (nuevos registros) */}
       {nuevoDisponible && (
@@ -247,6 +278,13 @@ const estilos = StyleSheet.create({
     backgroundColor: '#EEF2FF', borderRadius: 10,
     padding: 8, borderWidth: 1, borderColor: '#C7D2FE',
   },
+
+  btnInstalarPWA: {
+    backgroundColor: '#10B981', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    shadowColor: '#10B981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 6, elevation: 3,
+  },
+  btnInstalarTexto: { color: '#FFF', fontWeight: '800', fontSize: 14 },
 
   // Badge nuevo reporte
   nuevoBadge: {

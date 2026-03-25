@@ -72,7 +72,7 @@ export function ReporteCard({ reporte }) {
           {/* ── CONTENIDO DERECHA ── */}
           <View style={estilos.contenido}>
 
-            {/* Placa destacada y Hora */}
+            {/* Placa destacada y Fecha/Hora */}
             <View style={estilos.placaFilaContenedor}>
               <View style={estilos.placaFila}>
                 <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
@@ -82,7 +82,10 @@ export function ReporteCard({ reporte }) {
                   </View>
                 ) : null}
               </View>
-              <Text style={estilos.horaDestacada}>{reporte.hora}</Text>
+              <View style={estilos.tiempoCaja}>
+                <Text style={estilos.horaDestacada}>{reporte.hora}</Text>
+                <Text style={estilos.fechaDestacada}>{fechaMostrar}</Text>
+              </View>
             </View>
 
             {/* Componente con emoji + color */}
@@ -103,14 +106,7 @@ export function ReporteCard({ reporte }) {
               {reporte.descripcion}
             </Text>
 
-            {/* Divider decorativo */}
             <View style={estilos.divider} />
-
-            {/* Pie: fecha + responsable */}
-            <View style={estilos.pie}>
-              <Text style={estilos.fecha}>📅 {fechaMostrar}</Text>
-              {/* Hora ha sido movida arriba */}
-            </View>
             <Text style={estilos.responsable} numberOfLines={1}>
               👤 {reporte.responsable}
             </Text>
@@ -182,7 +178,9 @@ const estilos = StyleSheet.create({
   placaFilaContenedor: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
+  tiempoCaja: { alignItems: 'flex-end' },
   horaDestacada: { fontSize: 17, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
+  fechaDestacada: { fontSize: 11, color: '#64748B', fontWeight: '700', marginTop: 2 },
   busetaBadge: {
     backgroundColor: '#F1F5F9', borderRadius: 8,
     paddingHorizontal: 6, paddingVertical: 2,
