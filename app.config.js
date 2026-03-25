@@ -36,7 +36,22 @@ module.exports = {
         NSPhotoLibraryUsageDescription: 'Necesitamos acceso a tus fotos para seleccionar evidencia.',
       },
     },
-    web: { bundler: 'metro' },
+    web: {
+      bundler: 'metro',
+      output: 'static',
+      favicon: './public/logoouser.png',
+      name: 'InspeccionApp Copetran',
+      shortName: 'InspeccionApp',
+      description: 'Reporte de daños de equipos Copetran',
+      themeColor: '#1565C0',
+      backgroundColor: '#1565C0',
+      startUrl: '/InspeccionApp-Copetran/',
+      display: 'standalone',
+      orientation: 'portrait',
+      scope: '/InspeccionApp-Copetran/',
+      lang: 'es',
+      icon: './public/logoouser.png',
+    },
     experiments: {
       baseUrl: '/InspeccionApp-Copetran'
     }

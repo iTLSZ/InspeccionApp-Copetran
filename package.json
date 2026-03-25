@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "dev": "expo start -c --web",
-    "deploy": "expo export -p web && cd dist && type nul > .nojekyll && git init && git add . && git commit -m \"Deploy Produccion\" && powershell -Command \"$url = (git --git-dir=../.git config --get remote.origin.url); git push -f $url HEAD:gh-pages\""
+    "deploy": "expo export -p web && copy public\\manifest.json dist\\manifest.json && copy public\\service-worker.js dist\\service-worker.js && cd dist && type nul > .nojekyll && git init && git add . && git commit -m \"Deploy Produccion PWA\" && powershell -Command \"$url = (git --git-dir=../.git config --get remote.origin.url); git push -f $url HEAD:gh-pages\""
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
