@@ -25,13 +25,12 @@ export function FormField({
   obligatorio = false,
   editable = true,
   numberOfLines = 1,
-  compact = false,
 }) {
   const [activo, setActivo] = React.useState(false);
 
   return (
-    <View style={[estilos.contenedor, compact && estilos.contenedorCompacto]}>
-      <Text style={[estilos.label, compact && estilos.labelCompacto]}>
+    <View style={estilos.contenedor}>
+      <Text style={estilos.label}>
         {label}
         {obligatorio && <Text style={estilos.asterisco}> *</Text>}
       </Text>
@@ -39,7 +38,6 @@ export function FormField({
       <TextInput
         style={[
           estilos.input,
-          compact && estilos.inputCompacto,
           multiline && estilos.inputMultiline,
           activo && estilos.inputActivo,
           error && estilos.inputError,
@@ -70,9 +68,6 @@ const estilos = StyleSheet.create({
   contenedor: {
     marginBottom: 16,
   },
-  contenedorCompacto: {
-    marginBottom: 6,
-  },
   label: {
     fontSize: 13,
     fontWeight: '600',
@@ -80,10 +75,6 @@ const estilos = StyleSheet.create({
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-  },
-  labelCompacto: {
-    fontSize: 11,
-    marginBottom: 4,
   },
   asterisco: {
     color: COLORES.error,
@@ -97,12 +88,6 @@ const estilos = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 15,
     color: '#212121',
-  },
-  inputCompacto: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    fontSize: 13,
-    borderRadius: 8,
   },
   inputMultiline: {
     minHeight: 90,
