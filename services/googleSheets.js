@@ -5,54 +5,59 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { APPS_SCRIPT_URL } from '../app/config';
 
-// ─── Google Sheets (Mediante Apps Script) ──────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-/**
- * Convierte una URI local de imagen a base64
- * @param {string} uri - URI local de la imagen
- */
 async function imageUriToBase64(uri) {
   if (!uri) return null;
-  if (Platform.OS === 'web') {
-    const res = await fetch(uri);
-    const blob = await res.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]);
-      reader.readAsDataURL(blob);
-    });
-  } else {
-    return FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
+  try {
+    if (Platform.OS === 'web') {
+      const res = await fetch(uri);
+      const blob = await res.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.readAsDataURL(blob);
+      });
+    } else {
+      return FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+    }
+  } catch (e) {
+    console.warn('[imageUriToBase64] Error:', e.message);
+    return null;
   }
 }
 
+async function postScript(body) {
+  const response = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Respuesta inválida del servidor: ${text.substring(0, 120)}`);
+  }
+}
+
+// ─── Google Sheets ───────────────────────────────────────────────────────────
+
 /**
- * Agrega una nueva fila al Google Sheet e incrusta la imagen directamente en la celda.
- * Usa la acción 'appendRowWithImage' para que el script inserte el base64 en la hoja.
- * @param {Object} reporte - Datos del reporte de daño (incluye _fotoUri para imagen local)
+ * PASO 1 — Agrega la fila de texto al Sheet (siempre funciona con el script actual)
+ * PASO 2 — Intenta insertar la imagen incrustada (requiere script actualizado, falla en silencio si no)
  */
 export async function appendRow(reporte) {
-  // Convertir imagen a base64 si existe
-  let imageBase64 = null;
-  if (reporte._fotoUri) {
-    try {
-      imageBase64 = await imageUriToBase64(reporte._fotoUri);
-    } catch (e) {
-      console.warn('No se pudo leer imagen para incrustar:', e.message);
-    }
-  }
-
-  // Orden de columnas: debe coincidir con la cabecera del Sheet
-  // La columna de foto (índice 5) la manejamos con imagen incrustada, no URL
+  // Construir fila — columna 6 (índice 5) queda vacía, el script la llena con la imagen
   const fila = [
     reporte.fecha,
     reporte.hora,
     reporte.poblacion,
     reporte.numeroBuseta,
     reporte.placa,
-    '',  // Columna foto: el script inserta la imagen, no texto
+    '',            // Foto: la maneja el script
     reporte.componente,
     reporte.descripcion,
     reporte.preliminar ? 'Sí' : 'No',
@@ -60,43 +65,45 @@ export async function appendRow(reporte) {
     reporte.observaciones || '',
   ];
 
-  try {
-    const body = imageBase64
-      ? JSON.stringify({ action: 'appendRowWithImage', values: fila, imageBase64 })
-      : JSON.stringify({ action: 'appendRow', values: fila });
-
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body,
-    });
-
-    const text = await response.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error(`Servidor devolvió respuesta inválida: ${text.substring(0, 100)}...`);
-    }
-
-    if (!data.success) {
-      throw new Error(`Error en el Script: ${data.error || 'Desconocido'}`);
-    }
-    return data;
-  } catch (error) {
-    console.error('Fallo en conectividad POST Excel:', error.message);
-    throw error;
+  // ── PASO 1: guardar fila de texto (probado y funcional) ──────────────────
+  const data = await postScript({ action: 'appendRow', values: fila });
+  if (!data.success) {
+    throw new Error(`Error en el Script: ${data.error || 'Desconocido'}`);
   }
+
+  // ── PASO 2: insertar imagen (opcional, no bloquea si falla) ──────────────
+  if (reporte._fotoUri) {
+    // No await para no bloquear la confirmación al usuario
+    (async () => {
+      try {
+        const imageBase64 = await imageUriToBase64(reporte._fotoUri);
+        if (!imageBase64) return;
+
+        const imgData = await postScript({
+          action: 'insertImageLastRow',
+          imageBase64,
+          placa: reporte.placa,
+        });
+
+        if (imgData.success) {
+          console.log('[appendRow] Imagen incrustada correctamente en Excel.');
+        } else {
+          console.warn('[appendRow] Script no soporta insertImageLastRow aún:', imgData.error);
+        }
+      } catch (imgErr) {
+        console.warn('[appendRow] Error no crítico al incrustar imagen:', imgErr.message);
+      }
+    })();
+  }
+
+  return data;
 }
 
-/**
- * Obtiene los últimos N reportes del Google Sheet usando Apps Script
- * @param {number} limite - Cantidad de filas a traer (default 20)
- */
-export async function getRows(limite = 20) {
-  console.log("FETCHING URL:", APPS_SCRIPT_URL);
-  const response = await fetch(APPS_SCRIPT_URL);
+// ─── Google Sheets — Leer reportes ──────────────────────────────────────────
 
+export async function getRows(limite = 20) {
+  console.log('FETCHING URL:', APPS_SCRIPT_URL);
+  const response = await fetch(APPS_SCRIPT_URL);
   if (!response.ok) throw new Error('Error al conectar con Apps Script');
 
   let text = '';
@@ -105,7 +112,7 @@ export async function getRows(limite = 20) {
     text = await response.text();
     data = JSON.parse(text);
   } catch (error) {
-    console.error("Respuesta cruda que no es JSON:", text.substring(0, 300));
+    console.error('Respuesta cruda que no es JSON:', text.substring(0, 300));
     throw new Error('Error parseando JSON: ' + error.message);
   }
 
@@ -113,27 +120,24 @@ export async function getRows(limite = 20) {
 
   const filas = data.values || [];
 
-  // Tomar las últimas N filas y mapearlas a objetos
   return filas.slice(-limite).reverse().map((fila, idx) => ({
     id: `row_${idx}`,
-    fecha: fila[0] || '',
-    hora: fila[1] || '',
-    poblacion: fila[2] || '',
-    numeroBuseta: fila[3] || '',
-    placa: fila[4] || '',
-    linkFoto: fila[5] || '',
-    componente: fila[6] || '',
-    descripcion: fila[7] || '',
-    preliminar: fila[8] === 'Sí',
-    responsable: fila[9] || '',
-    observaciones: fila[10] || '',
+    fecha:        fila[0]  || '',
+    hora:         fila[1]  || '',
+    poblacion:    fila[2]  || '',
+    numeroBuseta: fila[3]  || '',
+    placa:        fila[4]  || '',
+    linkFoto:     fila[5]  || '',   // URL de Drive si el script actualizado la guardó
+    componente:   fila[6]  || '',
+    descripcion:  fila[7]  || '',
+    preliminar:   fila[8]  === 'Sí',
+    responsable:  fila[9]  || '',
+    observaciones:fila[10] || '',
   }));
 }
 
-// ─── uploadPhoto ya no es necesaria ─────────────────────────────────────
-// La imagen ahora se incrusta directamente en el Excel a través de appendRow.
-// Se mantiene la función por compatibilidad con reportes offline si los hubiera.
-export async function uploadPhoto(uri, nombre) {
-  console.log('[uploadPhoto] Función deprecada: las imágenes ahora se incrustan en Excel.');
+// ─── Compatibilidad (no se usa, sólo por si hay código que la llame) ────────
+export async function uploadPhoto() {
+  console.warn('[uploadPhoto] Deprecada. La imagen se maneja en appendRow.');
   return '';
 }
