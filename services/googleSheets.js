@@ -8,18 +8,51 @@ import { APPS_SCRIPT_URL } from '../app/config';
 // ─── Google Sheets (Mediante Apps Script) ──────────────────────────────
 
 /**
- * Agrega una nueva fila al Google Sheet usando Apps Script
- * @param {Object} reporte - Datos del reporte de daño
+ * Convierte una URI local de imagen a base64
+ * @param {string} uri - URI local de la imagen
+ */
+async function imageUriToBase64(uri) {
+  if (!uri) return null;
+  if (Platform.OS === 'web') {
+    const res = await fetch(uri);
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(blob);
+    });
+  } else {
+    return FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+  }
+}
+
+/**
+ * Agrega una nueva fila al Google Sheet e incrusta la imagen directamente en la celda.
+ * Usa la acción 'appendRowWithImage' para que el script inserte el base64 en la hoja.
+ * @param {Object} reporte - Datos del reporte de daño (incluye _fotoUri para imagen local)
  */
 export async function appendRow(reporte) {
+  // Convertir imagen a base64 si existe
+  let imageBase64 = null;
+  if (reporte._fotoUri) {
+    try {
+      imageBase64 = await imageUriToBase64(reporte._fotoUri);
+    } catch (e) {
+      console.warn('No se pudo leer imagen para incrustar:', e.message);
+    }
+  }
+
   // Orden de columnas: debe coincidir con la cabecera del Sheet
+  // La columna de foto (índice 5) la manejamos con imagen incrustada, no URL
   const fila = [
     reporte.fecha,
     reporte.hora,
     reporte.poblacion,
     reporte.numeroBuseta,
     reporte.placa,
-    reporte.linkFoto || '',
+    '',  // Columna foto: el script inserta la imagen, no texto
     reporte.componente,
     reporte.descripcion,
     reporte.preliminar ? 'Sí' : 'No',
@@ -28,13 +61,14 @@ export async function appendRow(reporte) {
   ];
 
   try {
+    const body = imageBase64
+      ? JSON.stringify({ action: 'appendRowWithImage', values: fila, imageBase64 })
+      : JSON.stringify({ action: 'appendRow', values: fila });
+
     const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'appendRow',
-        values: fila,
-      }),
+      body,
     });
 
     const text = await response.text();
@@ -96,47 +130,10 @@ export async function getRows(limite = 20) {
   }));
 }
 
-// ─── Google Drive (Mediante Apps Script) ───────────────────────────────
-
-/**
- * Sube una foto a Google Drive (a través del proxy) y retorna el link
- * @param {string} uri - URI local de la imagen
- * @param {string} nombre - Nombre del archivo
- */
+// ─── uploadPhoto ya no es necesaria ─────────────────────────────────────
+// La imagen ahora se incrusta directamente en el Excel a través de appendRow.
+// Se mantiene la función por compatibilidad con reportes offline si los hubiera.
 export async function uploadPhoto(uri, nombre) {
-  let base64 = '';
-
-  if (Platform.OS === 'web') {
-    // Si estamos en la web (navegador) extrae base64 directo de la URL Object/Data
-    const res = await fetch(uri);
-    const blob = await res.blob();
-    base64 = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]);
-      reader.readAsDataURL(blob);
-    });
-  } else {
-    // Si estamos en un celular físico (Android/iOS)
-    base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-  }
-
-  const response = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({
-      action: 'uploadPhoto',
-      nombre: nombre,
-      base64: base64,
-    }),
-  });
-
-  const data = await response.json();
-  if (!data.success) {
-    throw new Error(`Error subiendo foto: ${data.error}`);
-  }
-
-  // Apps Script nos devuelve la URL pública generada
-  return data.link;
+  console.log('[uploadPhoto] Función deprecada: las imágenes ahora se incrustan en Excel.');
+  return '';
 }

@@ -180,9 +180,10 @@ const estilos = StyleSheet.create({
     justifyContent: 'center',
   },
   textosContenedor: {
+    flex: 1,
     justifyContent: 'center',
   },
-  headerEmpresa: { color: '#FFFFFF', fontSize: 20, fontWeight: '800' },
+  headerEmpresa: { color: '#FFFFFF', fontSize: 18, fontWeight: '800', flexWrap: 'wrap' },
   headerSub: { color: '#90CAF9', fontSize: 13, marginTop: 2 },
   logoContainer: { alignItems: 'center', justifyContent: 'center', marginRight: 16 },
   logo: { width: 75, height: 75, resizeMode: 'contain' },

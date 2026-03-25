@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { FormField } from '../components/FormField';
 import { PhotoPicker } from '../components/PhotoPicker';
 import { useForm } from '../hooks/useForm';
-import { appendRow, uploadPhoto } from '../services/googleSheets';
+import { appendRow } from '../services/googleSheets';
 import { saveLocal } from '../services/offline';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -51,11 +51,7 @@ export default function NuevoReporte({ onGuardado }) {
       }
 
       let linkFoto = '';
-      if (campos.fotoUri && hayConexion) {
-        // Subir foto a Google Drive
-        const nombre = `buseta_${campos.placa}_${Date.now()}.jpg`;
-        linkFoto = await uploadPhoto(campos.fotoUri, nombre);
-      }
+      // Ya no subimos a Drive: la imagen se incrusta en Excel via appendRow
 
       const reporte = {
         fecha: campos.fecha,

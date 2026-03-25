@@ -10,7 +10,16 @@ module.exports = {
     icon: './assets/icon.png',
     splash: { backgroundColor: '#1565C0' },
     scheme: 'inspeccionapp',
-    plugins: ['expo-router'],
+    plugins: [
+      'expo-router',
+      [
+        'expo-image-picker',
+        {
+          "photosPermission": "Necesitamos acceso a tus fotos para seleccionar evidencia.",
+          "cameraPermission": "Necesitamos acceso a la cámara para capturar evidencia fotográfica."
+        }
+      ]
+    ],
     extra: {
       EXPO_PUBLIC_APPS_SCRIPT_URL: process.env.EXPO_PUBLIC_APPS_SCRIPT_URL,
       NOMBRE_EMPRESA: process.env.NOMBRE_EMPRESA || 'InspeccionApp Copetran',
