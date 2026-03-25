@@ -310,6 +310,7 @@ const estilos = StyleSheet.create({
     position: 'absolute', bottom: 24, left: 20, right: 20,
     shadowColor: '#4338CA', shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4, shadowRadius: 16, elevation: 10,
+    borderRadius: 18,
   },
   fab: {
     backgroundColor: '#4338CA', borderRadius: 18,
