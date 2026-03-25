@@ -25,7 +25,7 @@ const COMPONENTES = [
   'LEVAS'
 ];
 
-export function ComponentePicker({ valor, onChange, error }) {
+export function ComponentePicker({ valor, onChange, error, compact = false }) {
   const [abierto, setAbierto] = useState(false);
 
   const seleccionar = (componente) => {
@@ -34,13 +34,18 @@ export function ComponentePicker({ valor, onChange, error }) {
   };
 
   return (
-    <View style={estilos.contenedor}>
-      <Text style={estilos.label}>
+    <View style={[estilos.contenedor, compact && estilos.contenedorCompacto]}>
+      <Text style={[estilos.label, compact && estilos.labelCompacto]}>
         COMPONENTE AFECTADO <Text style={estilos.obligatorio}>*</Text>
       </Text>
 
       <TouchableOpacity
-        style={[estilos.selector, error && estilos.selectorError, abierto && estilos.selectorActivo]}
+        style={[
+          estilos.selector,
+          compact && estilos.selectorCompacto,
+          error && estilos.selectorError,
+          abierto && estilos.selectorActivo
+        ]}
         onPress={() => setAbierto(true)}
         activeOpacity={0.8}
       >
@@ -98,16 +103,19 @@ export function ComponentePicker({ valor, onChange, error }) {
 
 const estilos = StyleSheet.create({
   contenedor: { marginBottom: 16 },
+  contenedorCompacto: { marginBottom: 6 },
   label: {
     fontSize: 13, fontWeight: '600', color: '#616161',
     marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5,
   },
+  labelCompacto: { fontSize: 11, marginBottom: 4 },
   obligatorio: { color: '#E53935' },
   selector: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#F5F5F5', borderWidth: 1.5, borderColor: '#E0E0E0',
     borderRadius: 10, paddingHorizontal: 14, paddingVertical: 13,
   },
+  selectorCompacto: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8 },
   selectorActivo: { borderColor: '#4338CA', backgroundColor: '#FFFFFF' },
   selectorError: { borderColor: '#D32F2F', backgroundColor: '#FFF8F8' },
   selectorTexto: { fontSize: 15, color: '#212121', flex: 1 },

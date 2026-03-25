@@ -6,25 +6,27 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Image,
   Modal, Pressable, Animated,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const COMPONENTES = {
-  'DEFENSAS':           { color: '#3B82F6', emoji: '🛡️' },
-  'FAROS DELANTEROS':   { color: '#F59E0B', emoji: '💡' },
-  'DIRECCIONALES':      { color: '#FCD34D', emoji: '↔️' },
-  'PANORÁMICO':         { color: '#06B6D4', emoji: '🪟' },
-  'RETROVISORES':       { color: '#64748B', emoji: '🔍' },
-  'PUERTAS':            { color: '#22C55E', emoji: '🚪' },
-  'VENTANAS':           { color: '#38BDF8', emoji: '🖼️' },
-  'CARROCERÍA LATERAL': { color: '#A855F7', emoji: '🚌' },
-  'ESTRIBOS':           { color: '#8B5CF6', emoji: '🪜' },
-  'LLANTAS':            { color: '#1F2937', emoji: '🛞' },
-  'GUARDABARROS':       { color: '#475569', emoji: '🛡️' },
-  'VIDRIO TRASERO':     { color: '#0EA5E9', emoji: '🪟' },
-  'PLACAS':             { color: '#EAB308', emoji: '🔢' },
-  'TECHO':              { color: '#94A3B8', emoji: '⬆️' },
-  'LEVAS':              { color: '#EF4444', emoji: '⚙️' },
+  'DEFENSAS':           { color: '#3B82F6' },
+  'FAROS DELANTEROS':   { color: '#F59E0B' },
+  'DIRECCIONALES':      { color: '#FCD34D' },
+  'PANORÁMICO':         { color: '#06B6D4' },
+  'RETROVISORES':       { color: '#64748B' },
+  'PUERTAS':            { color: '#22C55E' },
+  'VENTANAS':           { color: '#38BDF8' },
+  'CARROCERÍA LATERAL': { color: '#A855F7' },
+  'ESTRIBOS':           { color: '#8B5CF6' },
+  'LLANTAS':            { color: '#1F2937' },
+  'GUARDABARROS':       { color: '#475569' },
+  'VIDRIO TRASERO':     { color: '#0EA5E9' },
+  'PLACAS':             { color: '#EAB308' },
+  'TECHO':              { color: '#94A3B8' },
+  'LEVAS':              { color: '#EF4444' },
+  'OTRO':               { color: '#94A3B8' },
 };
-const DEFAULT_INFO = { color: '#6366F1', emoji: '📋' };
+const DEFAULT_INFO = { color: '#6366F1' };
 
 export function ReporteCard({ reporte }) {
   const info = COMPONENTES[reporte.componente] || DEFAULT_INFO;
@@ -53,7 +55,7 @@ export function ReporteCard({ reporte }) {
               </>
             ) : (
               <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '18' }]}>
-                <Text style={estilos.placeholderEmoji}>{info.emoji}</Text>
+                <MaterialIcons name="image" size={32} color={info.color} style={{ opacity: 0.6 }} />
                 <Text style={estilos.placeholderTexto}>Sin foto</Text>
               </View>
             )}
@@ -74,9 +76,9 @@ export function ReporteCard({ reporte }) {
               ) : null}
             </View>
 
-            {/* Componente con emoji + color */}
+            {/* Componente con color */}
             <View style={[estilos.componenteBadge, { backgroundColor: info.color + '18' }]}>
-              <Text style={estilos.componenteEmoji}>{info.emoji}</Text>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: info.color }} />
               <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
                 {reporte.componente || 'Sin componente'}
               </Text>
