@@ -1,7 +1,7 @@
 // app/index.jsx
-// Pantalla principal rediseñada — Header premium con gradiente, cards modernas
+// Pantalla principal — Header centrado, badge auto-refresh, cards premium
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View, Text, FlatList, StyleSheet, TouchableOpacity,
   RefreshControl, ActivityIndicator, Platform, Alert, Image, Animated, Easing
@@ -18,11 +18,14 @@ export default function Inicio() {
   const [reportes, setReportes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
+  const [nuevoDisponible, setNuevoDisponible] = useState(false);
+  const contadorRef = useRef(null);
   const { pendientes, sincronizando, conectado, sincronizar } = useSync();
-  const spinValue = React.useRef(new Animated.Value(0)).current;
-  const scaleValue = React.useRef(new Animated.Value(1)).current;
-  const headerOpacity = React.useRef(new Animated.Value(0)).current;
-  const headerSlide = React.useRef(new Animated.Value(-20)).current;
+  const spinValue = useRef(new Animated.Value(0)).current;
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const headerOpacity = useRef(new Animated.Value(0)).current;
+  const headerSlide = useRef(new Animated.Value(-20)).current;
+  const badgePulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -31,6 +34,20 @@ export default function Inicio() {
     ]).start();
   }, []);
 
+  useEffect(() => {
+    if (nuevoDisponible) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(badgePulse, { toValue: 1.05, duration: 600, useNativeDriver: true }),
+          Animated.timing(badgePulse, { toValue: 1, duration: 600, useNativeDriver: true }),
+        ])
+      ).start();
+    } else {
+      badgePulse.stopAnimation();
+      badgePulse.setValue(1);
+    }
+  }, [nuevoDisponible]);
+
   const handleNuevoReporte = () => {
     Animated.sequence([
       Animated.timing(scaleValue, { toValue: 0.94, duration: 100, useNativeDriver: true }),
@@ -38,10 +55,17 @@ export default function Inicio() {
     ]).start(() => router.push('/nuevo-reporte'));
   };
 
-  const cargarReportes = useCallback(async () => {
+  const cargarReportes = useCallback(async (silencioso = false) => {
     try {
       const datos = await getRows(20);
-      setReportes(datos);
+      const total = datos.length;
+      if (silencioso && contadorRef.current !== null && total > contadorRef.current) {
+        setNuevoDisponible(true);
+      } else {
+        setReportes(datos);
+        contadorRef.current = total;
+        setNuevoDisponible(false);
+      }
     } catch (error) {
       console.error('Error cargando reportes:', error);
     } finally {
@@ -50,10 +74,16 @@ export default function Inicio() {
     }
   }, []);
 
+  const cargarNuevos = useCallback(() => {
+    setNuevoDisponible(false);
+    setRefrescando(true);
+    cargarReportes(false);
+  }, [cargarReportes]);
+
   useFocusEffect(
     useCallback(() => {
-      cargarReportes();
-      const intervalo = setInterval(cargarReportes, 12000);
+      cargarReportes(false);
+      const intervalo = setInterval(() => cargarReportes(true), 12000);
       return () => clearInterval(intervalo);
     }, [cargarReportes])
   );
@@ -64,7 +94,7 @@ export default function Inicio() {
     Animated.loop(
       Animated.timing(spinValue, { toValue: 1, duration: 700, easing: Easing.linear, useNativeDriver: false })
     ).start();
-    cargarReportes().finally(() => spinValue.stopAnimation());
+    cargarReportes(false).finally(() => spinValue.stopAnimation());
   };
 
   const spin = spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
@@ -72,17 +102,16 @@ export default function Inicio() {
   const handleSincronizar = async () => {
     const result = await sincronizar();
     if (result) {
-      Alert.alert('Sincronización', `✅ ${result.exitosos} reportes sincronizados${result.fallidos ? `\n⚠ ${result.fallidos} fallidos` : ''}`);
-      cargarReportes();
+      Alert.alert('Sincronización', `✅ ${result.exitosos} reportes sincronizados`);
+      cargarReportes(false);
     }
   };
 
   return (
     <View style={estilos.contenedor}>
 
-      {/* ── HEADER ───────────────────────────────────── */}
+      {/* ── HEADER CENTRADO ─────────────────────────── */}
       <View style={estilos.header}>
-        {/* Decoración geométrica */}
         <View style={estilos.headerCirculo1} />
         <View style={estilos.headerCirculo2} />
 
@@ -90,24 +119,15 @@ export default function Inicio() {
           opacity: headerOpacity,
           transform: [{ translateY: headerSlide }]
         }]}>
-          {/* Logo + info */}
-          <View style={estilos.logoFila}>
-            <View style={estilos.logoWrapper}>
-              <Image source={require('../public/logoouser.png')} style={estilos.logo} resizeMode="contain" />
-            </View>
-            <View style={estilos.headerTextos}>
-              <Text style={estilos.headerEmpresa} numberOfLines={1}>{NOMBRE_EMPRESA}</Text>
-              <Text style={estilos.headerSub}>Sistema de Inspección</Text>
-            </View>
-            {/* Status pill */}
-            <View style={[estilos.statusPill, conectado ? estilos.statusOnline : estilos.statusOffline]}>
-              <View style={[estilos.statusDot, { backgroundColor: conectado ? '#4ADE80' : '#F87171' }]} />
-              <Text style={estilos.statusTexto}>{conectado ? 'Online' : 'Offline'}</Text>
-            </View>
+          <View style={estilos.logoWrapper}>
+            <Image source={require('../public/logoouser.png')} style={estilos.logo} resizeMode="contain" />
           </View>
-
-
-
+          <Text style={estilos.headerEmpresa} numberOfLines={1}>{NOMBRE_EMPRESA}</Text>
+          <Text style={estilos.headerSub}>Sistema de Inspección de Equipos</Text>
+          <View style={[estilos.statusPill, conectado ? estilos.statusOnline : estilos.statusOffline]}>
+            <View style={[estilos.statusDot, { backgroundColor: conectado ? '#4ADE80' : '#F87171' }]} />
+            <Text style={estilos.statusTexto}>{conectado ? 'En línea' : 'Sin conexión'}</Text>
+          </View>
         </Animated.View>
       </View>
 
@@ -123,6 +143,16 @@ export default function Inicio() {
           </Animated.View>
         </TouchableOpacity>
       </View>
+
+      {/* Badge nuevo reporte */}
+      {nuevoDisponible && (
+        <Animated.View style={{ transform: [{ scale: badgePulse }], marginHorizontal: 16, marginBottom: 8 }}>
+          <TouchableOpacity style={estilos.nuevoBadge} onPress={cargarNuevos} activeOpacity={0.85}>
+            <MaterialIcons name="arrow-upward" size={15} color="#FFF" />
+            <Text style={estilos.nuevoBadgeTexto}>¡Nuevo reporte disponible! — Toca para ver</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
 
       {/* ── LISTA ────────────────────────────────────── */}
       {cargando && reportes.length === 0 ? (
@@ -164,65 +194,43 @@ export default function Inicio() {
 const estilos = StyleSheet.create({
   contenedor: { flex: 1, backgroundColor: '#F8FAFC' },
 
-  // ── Header ──
+  // ── Header centrado ──
   header: {
     backgroundColor: '#4338CA',
     paddingTop: Platform.OS === 'ios' ? 54 : 32,
     paddingBottom: 24,
     paddingHorizontal: 20,
     overflow: 'hidden',
+    alignItems: 'center',
   },
   headerCirculo1: {
     position: 'absolute', width: 200, height: 200,
-    borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.05)',
-    top: -60, right: -40,
+    borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.05)', top: -60, right: -40,
   },
   headerCirculo2: {
     position: 'absolute', width: 140, height: 140,
-    borderRadius: 70, backgroundColor: 'rgba(255,255,255,0.07)',
-    top: 20, right: 80,
+    borderRadius: 70, backgroundColor: 'rgba(255,255,255,0.07)', top: 20, right: 80,
   },
-  headerInner: { gap: 16 },
-  logoFila: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerInner: { alignItems: 'center', gap: 8 },
   logoWrapper: {
-    width: 52, height: 52, borderRadius: 14,
+    width: 64, height: 64, borderRadius: 18,
     backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.25)',
+    marginBottom: 4,
   },
-  logo: { width: 40, height: 40 },
-  headerTextos: { flex: 1 },
-  headerEmpresa: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSub: { color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 2 },
+  logo: { width: 48, height: 48 },
+  headerEmpresa: { color: '#FFFFFF', fontSize: 18, fontWeight: '900', textAlign: 'center' },
+  headerSub: { color: 'rgba(255,255,255,0.65)', fontSize: 12, textAlign: 'center' },
   statusPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
-  },
-  statusOnline: { backgroundColor: 'rgba(74,222,128,0.15)' },
-  statusOffline: { backgroundColor: 'rgba(248,113,113,0.15)' },
-  statusDot: { width: 7, height: 7, borderRadius: 4 },
-  statusTexto: { color: '#FFF', fontSize: 11, fontWeight: '700' },
-  // Stats
-  statsRow: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 14, padding: 12,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
-  },
-  statCaja: { flex: 1, alignItems: 'center' },
-  statNum: { color: '#FFFFFF', fontSize: 22, fontWeight: '900' },
-  statLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: '600', marginTop: 2 },
-  statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: 8 },
-  // Sync
-  syncBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: 'rgba(251,191,36,0.25)',
-    borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14,
-    borderWidth: 1, borderColor: 'rgba(251,191,36,0.4)',
-    alignSelf: 'flex-start',
+    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', marginTop: 4,
   },
-  syncBtnTexto: { color: '#FEF3C7', fontSize: 12, fontWeight: '700' },
+  statusOnline:  { backgroundColor: 'rgba(74,222,128,0.15)' },
+  statusOffline: { backgroundColor: 'rgba(248,113,113,0.15)' },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusTexto: { color: '#FFF', fontSize: 12, fontWeight: '700' },
 
   // ── Sección ──
   seccionHeader: {
@@ -235,6 +243,16 @@ const estilos = StyleSheet.create({
     backgroundColor: '#EEF2FF', borderRadius: 10,
     padding: 8, borderWidth: 1, borderColor: '#C7D2FE',
   },
+
+  // Badge nuevo reporte
+  nuevoBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#6366F1', borderRadius: 12,
+    paddingVertical: 10, paddingHorizontal: 16,
+    shadowColor: '#6366F1', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4, shadowRadius: 8, elevation: 6,
+  },
+  nuevoBadgeTexto: { color: '#FFF', fontSize: 13, fontWeight: '800', flex: 1 },
 
   // ── Lista ──
   lista: { paddingHorizontal: 16, paddingBottom: 110 },
@@ -252,9 +270,8 @@ const estilos = StyleSheet.create({
     shadowOpacity: 0.4, shadowRadius: 16, elevation: 10,
   },
   fab: {
-    backgroundColor: '#4338CA',
-    borderRadius: 18, flexDirection: 'row',
-    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#4338CA', borderRadius: 18,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     paddingVertical: 16, gap: 10,
   },
   fabIconCaja: {

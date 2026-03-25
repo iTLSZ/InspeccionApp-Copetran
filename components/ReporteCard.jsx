@@ -1,5 +1,5 @@
 // components/ReporteCard.jsx
-// Card rediseñada: imagen a la IZQUIERDA, diseño premium oscuro moderno
+// Card premium: imagen grande izquierda + contenido creativo derecha
 
 import React, { useState } from 'react';
 import {
@@ -7,69 +7,77 @@ import {
   Modal, Pressable, Animated,
 } from 'react-native';
 
-const COLORES_COMPONENTE = {
-  Motor:               { bg: '#FF6B6B', light: '#FFE5E5' },
-  Carrocería:          { bg: '#A855F7', light: '#F3E8FF' },
-  Frenos:              { bg: '#EC4899', light: '#FCE7F3' },
-  Suspensión:          { bg: '#10B981', light: '#D1FAE5' },
-  Eléctrico:           { bg: '#F59E0B', light: '#FEF3C7' },
-  Neumáticos:          { bg: '#3B82F6', light: '#DBEAFE' },
-  Vidrios:             { bg: '#06B6D4', light: '#CFFAFE' },
-  Puertas:             { bg: '#22C55E', light: '#DCFCE7' },
-  'Aire acondicionado':{ bg: '#0EA5E9', light: '#E0F2FE' },
-  Otro:                { bg: '#94A3B8', light: '#F1F5F9' },
+const COMPONENTES = {
+  Motor:               { color: '#EF4444', emoji: '⚙️' },
+  Carrocería:          { color: '#A855F7', emoji: '🚌' },
+  Frenos:              { color: '#EC4899', emoji: '🛑' },
+  Suspensión:          { color: '#10B981', emoji: '🔧' },
+  Eléctrico:           { color: '#F59E0B', emoji: '⚡' },
+  Neumáticos:          { color: '#3B82F6', emoji: '🔵' },
+  Vidrios:             { color: '#06B6D4', emoji: '🪟' },
+  Puertas:             { color: '#22C55E', emoji: '🚪' },
+  'Aire acondicionado':{ color: '#0EA5E9', emoji: '❄️' },
+  Otro:                { color: '#94A3B8', emoji: '🔩' },
 };
-
-const DEFAULT_COLOR = { bg: '#6366F1', light: '#EEF2FF' };
+const DEFAULT_INFO = { color: '#6366F1', emoji: '📋' };
 
 export function ReporteCard({ reporte }) {
-  const colorInfo = COLORES_COMPONENTE[reporte.componente] || DEFAULT_COLOR;
+  const info = COMPONENTES[reporte.componente] || DEFAULT_INFO;
   const [verFoto, setVerFoto] = useState(false);
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
-  const onPressIn = () => Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true, speed: 50 }).start();
-  const onPressOut = () => Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start();
+  const onIn  = () => Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true, speed: 50 }).start();
+  const onOut = () => Animated.spring(scaleAnim, { toValue: 1,    useNativeDriver: true, speed: 50 }).start();
 
   return (
     <>
       <Animated.View style={[estilos.card, { transform: [{ scale: scaleAnim }] }]}>
         <TouchableOpacity
-          activeOpacity={1}
-          onPressIn={onPressIn}
-          onPressOut={onPressOut}
+          activeOpacity={1} onPressIn={onIn} onPressOut={onOut}
           onPress={reporte.linkFoto ? () => setVerFoto(true) : null}
-          style={estilos.cardInner}
+          style={estilos.inner}
         >
-          {/* ── Foto / Placeholder a la IZQUIERDA ── */}
+          {/* ── FOTO IZQUIERDA (más grande) ── */}
           <View style={estilos.fotoContenedor}>
             {reporte.linkFoto ? (
-              <Image source={{ uri: reporte.linkFoto }} style={estilos.foto} resizeMode="cover" />
+              <>
+                <Image source={{ uri: reporte.linkFoto }} style={estilos.foto} resizeMode="cover" />
+                <View style={estilos.fotoOverlay}>
+                  <Text style={estilos.fotoLupa}>🔍</Text>
+                </View>
+              </>
             ) : (
-              <View style={[estilos.fotoPlaceholder, { backgroundColor: colorInfo.light }]}>
-                <Text style={estilos.fotoPlaceholderIcono}>📷</Text>
+              <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '18' }]}>
+                <Text style={estilos.placeholderEmoji}>{info.emoji}</Text>
+                <Text style={estilos.placeholderTexto}>Sin foto</Text>
               </View>
             )}
-            {/* Barra de color del componente */}
-            <View style={[estilos.colorBar, { backgroundColor: colorInfo.bg }]} />
+            {/* Barra lateral de color */}
+            <View style={[estilos.barraColor, { backgroundColor: info.color }]} />
           </View>
 
-          {/* ── Contenido a la DERECHA ── */}
+          {/* ── CONTENIDO DERECHA ── */}
           <View style={estilos.contenido}>
-            {/* Fila superior: placa + fecha */}
-            <View style={estilos.filaSuperior}>
+
+            {/* Placa destacada */}
+            <View style={estilos.placaFila}>
               <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
-              <Text style={estilos.fecha}>{reporte.fecha}</Text>
+              {reporte.numeroBuseta ? (
+                <View style={estilos.busetaBadge}>
+                  <Text style={estilos.busetaTexto}>#{reporte.numeroBuseta}</Text>
+                </View>
+              ) : null}
             </View>
 
-            {/* Badge componente */}
-            <View style={[estilos.badge, { backgroundColor: colorInfo.light }]}>
-              <View style={[estilos.badgeDot, { backgroundColor: colorInfo.bg }]} />
-              <Text style={[estilos.badgeTexto, { color: colorInfo.bg }]} numberOfLines={1}>
+            {/* Componente con emoji + color */}
+            <View style={[estilos.componenteBadge, { backgroundColor: info.color + '18' }]}>
+              <Text style={estilos.componenteEmoji}>{info.emoji}</Text>
+              <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
                 {reporte.componente || 'Sin componente'}
               </Text>
               {reporte.preliminar && (
                 <View style={estilos.prelBadge}>
-                  <Text style={estilos.prelTexto}>⚡ PREV</Text>
+                  <Text style={estilos.prelTexto}>PREV</Text>
                 </View>
               )}
             </View>
@@ -79,17 +87,19 @@ export function ReporteCard({ reporte }) {
               {reporte.descripcion}
             </Text>
 
-            {/* Pie: responsable + hora */}
+            {/* Divider decorativo */}
+            <View style={estilos.divider} />
+
+            {/* Pie: fecha + responsable */}
             <View style={estilos.pie}>
-              <Text style={estilos.responsable} numberOfLines={1}>
-                👤 {reporte.responsable}
-              </Text>
+              <Text style={estilos.fecha}>📅 {reporte.fecha}</Text>
               <Text style={estilos.hora}>{reporte.hora}</Text>
             </View>
-
-            {/* Población si existe */}
+            <Text style={estilos.responsable} numberOfLines={1}>
+              👤 {reporte.responsable}
+            </Text>
             {reporte.poblacion ? (
-              <Text style={estilos.poblacion}>📍 {reporte.poblacion}</Text>
+              <Text style={estilos.poblacion} numberOfLines={1}>📍 {reporte.poblacion}</Text>
             ) : null}
           </View>
         </TouchableOpacity>
@@ -103,7 +113,7 @@ export function ReporteCard({ reporte }) {
               <Image source={{ uri: reporte.linkFoto }} style={estilos.fotoAmpliada} resizeMode="contain" />
               <View style={estilos.modalInfo}>
                 <Text style={estilos.modalPlaca}>{reporte.placa}</Text>
-                <Text style={estilos.modalFecha}>{reporte.fecha} · {reporte.hora}</Text>
+                <Text style={estilos.modalSub}>{reporte.componente}  ·  {reporte.fecha} {reporte.hora}</Text>
               </View>
               <TouchableOpacity style={estilos.modalCerrar} onPress={() => setVerFoto(false)}>
                 <Text style={estilos.modalCerrarTexto}>✕  Cerrar</Text>
@@ -118,124 +128,112 @@ export function ReporteCard({ reporte }) {
 
 const estilos = StyleSheet.create({
   card: {
-    marginBottom: 12,
-    borderRadius: 18,
+    marginBottom: 14,
+    borderRadius: 20,
     shadowColor: '#6366F1',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.10,
-    shadowRadius: 12,
+    shadowRadius: 14,
     elevation: 5,
   },
-  cardInner: {
+  inner: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#F1F5F9',
+    minHeight: 150,
   },
+
   // ── Foto izquierda ──
   fotoContenedor: {
-    width: 90,
+    width: 110,          // Más ancho que antes (era 90)
     position: 'relative',
   },
   foto: {
-    width: 90,
+    width: 110,
     height: '100%',
-    minHeight: 120,
+    minHeight: 150,
   },
-  fotoPlaceholder: {
-    width: 90,
-    minHeight: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fotoPlaceholderIcono: { fontSize: 28, opacity: 0.5 },
-  colorBar: {
+  fotoOverlay: {
     position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: 3,
+    bottom: 6, right: 6,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 8, padding: 4,
   },
+  fotoLupa: { fontSize: 12 },
+  fotoPlaceholder: {
+    width: 110, minHeight: 150,
+    alignItems: 'center', justifyContent: 'center', gap: 6,
+  },
+  placeholderEmoji: { fontSize: 32 },
+  placeholderTexto: { fontSize: 10, color: '#94A3B8', fontWeight: '600' },
+  barraColor: {
+    position: 'absolute', right: 0, top: 0, bottom: 0, width: 4,
+  },
+
   // ── Contenido derecha ──
   contenido: {
     flex: 1,
     padding: 12,
     gap: 5,
+    justifyContent: 'center',
   },
-  filaSuperior: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  placaFila: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
   },
   placa: {
-    fontSize: 17,
-    fontWeight: '900',
-    color: '#1E293B',
-    letterSpacing: 1.5,
+    fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2,
   },
-  fecha: { fontSize: 11, color: '#94A3B8', fontWeight: '600' },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    gap: 5,
-    maxWidth: '100%',
+  busetaBadge: {
+    backgroundColor: '#F1F5F9', borderRadius: 8,
+    paddingHorizontal: 6, paddingVertical: 2,
   },
-  badgeDot: { width: 7, height: 7, borderRadius: 4 },
-  badgeTexto: { fontSize: 11, fontWeight: '800', flexShrink: 1 },
+  busetaTexto: { fontSize: 11, color: '#64748B', fontWeight: '700' },
+
+  componenteBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    alignSelf: 'flex-start', borderRadius: 10,
+    paddingHorizontal: 8, paddingVertical: 4, maxWidth: '100%',
+  },
+  componenteEmoji: { fontSize: 13 },
+  componenteTexto: { fontSize: 12, fontWeight: '800', flexShrink: 1 },
   prelBadge: {
-    backgroundColor: '#FF6B35',
-    borderRadius: 8,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
+    backgroundColor: '#F97316', borderRadius: 6,
+    paddingHorizontal: 5, paddingVertical: 1,
   },
   prelTexto: { color: '#FFF', fontSize: 9, fontWeight: '900' },
-  descripcion: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 18,
+
+  descripcion: { fontSize: 12, color: '#64748B', lineHeight: 17 },
+
+  divider: {
+    height: 1, backgroundColor: '#F1F5F9', marginVertical: 2,
   },
   pie: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 2,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
   },
-  responsable: { fontSize: 11, color: '#64748B', flex: 1 },
-  hora: { fontSize: 11, color: '#94A3B8', fontWeight: '600' },
-  poblacion: { fontSize: 11, color: '#94A3B8' },
+  fecha: { fontSize: 11, color: '#475569', fontWeight: '600' },
+  hora:  { fontSize: 11, color: '#94A3B8' },
+  responsable: { fontSize: 11, color: '#64748B' },
+  poblacion:   { fontSize: 11, color: '#94A3B8' },
+
   // ── Modal ──
   modalFondo: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.92)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.92)',
+    justifyContent: 'center', alignItems: 'center',
   },
   modalCaja: {
-    width: '92%',
-    backgroundColor: '#0F172A',
-    borderRadius: 24,
-    overflow: 'hidden',
-    alignItems: 'center',
+    width: '92%', backgroundColor: '#0F172A',
+    borderRadius: 24, overflow: 'hidden', alignItems: 'center',
   },
   fotoAmpliada: { width: '100%', height: 340 },
-  modalInfo: {
-    padding: 16,
-    alignItems: 'center',
-  },
-  modalPlaca: { color: '#E2E8F0', fontSize: 20, fontWeight: '900', letterSpacing: 2 },
-  modalFecha: { color: '#64748B', fontSize: 13, marginTop: 4 },
+  modalInfo: { padding: 16, alignItems: 'center', gap: 4 },
+  modalPlaca: { color: '#E2E8F0', fontSize: 22, fontWeight: '900', letterSpacing: 2 },
+  modalSub:   { color: '#64748B', fontSize: 12 },
   modalCerrar: {
-    margin: 16,
-    backgroundColor: '#6366F1',
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 40,
+    margin: 16, backgroundColor: '#6366F1', borderRadius: 14,
+    paddingVertical: 12, paddingHorizontal: 40,
   },
   modalCerrarTexto: { color: '#FFF', fontWeight: '800', fontSize: 15 },
 });
