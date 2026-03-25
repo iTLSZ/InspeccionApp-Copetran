@@ -12,13 +12,13 @@
   "categories": ["utilities", "productivity"],
   "icons": [
     {
-      "src": "/InspeccionApp-Copetran/logoouser.png",
+      "src": "/InspeccionApp-Copetran/ICON.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/InspeccionApp-Copetran/logoouser.png",
+      "src": "/InspeccionApp-Copetran/ICON.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
