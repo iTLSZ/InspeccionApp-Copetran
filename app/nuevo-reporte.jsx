@@ -48,13 +48,6 @@ export default function NuevoReporte({ onGuardado }) {
         hayConexion = netState.isConnected && netState.isInternetReachable !== false;
       }
 
-      if (campos.componente === 'OTRO' && !campos.otroComponente?.trim()) {
-        Alert.alert('Campos requeridos', 'Debes especificar el componente');
-        setEnviando(false);
-        return;
-      }
-      const componenteFinal = campos.componente === 'OTRO' ? campos.otroComponente.trim().toUpperCase() : campos.componente;
-
       const reporte = {
         fecha: campos.fecha,
         hora: campos.hora,
@@ -62,7 +55,7 @@ export default function NuevoReporte({ onGuardado }) {
         numeroBuseta: campos.numeroBuseta,
         placa: campos.placa,
         linkFoto: '',
-        componente: componenteFinal,
+        componente: campos.componente === 'OTRO' ? campos.otroComponente.trim().toUpperCase() : campos.componente,
         descripcion: campos.descripcion,
         preliminar: campos.preliminar,
         responsable: campos.responsable,
@@ -179,15 +172,12 @@ export default function NuevoReporte({ onGuardado }) {
             <Text style={estilos.seccionTitulo}>Hallazgo</Text>
           </View>
 
-          <ComponentePicker valor={campos.componente} onChange={(v) => {
-            setcampo('componente', v);
-            if (v !== 'OTRO') setcampo('otroComponente', '');
-          }} error={errores.componente} />
+          <ComponentePicker valor={campos.componente} onChange={(v) => setcampo('componente', v)} error={errores.componente} />
 
           {campos.componente === 'OTRO' && (
-            <FormField label="Especificar componente" valor={campos.otroComponente}
-              onChange={(v) => setcampo('otroComponente', v.toUpperCase())}
-              obligatorio autoCapitalize="characters" placeholder="Ej. PARACHOQUES..." />
+            <FormField label="¿Cuál componente?" valor={campos.otroComponente}
+              onChange={(v) => setcampo('otroComponente', v)} error={errores.otroComponente}
+              obligatorio placeholder="Escribe el nombre del componente..." autoCapitalize="characters" />
           )}
 
           <FormField label="Descripción" valor={campos.descripcion}

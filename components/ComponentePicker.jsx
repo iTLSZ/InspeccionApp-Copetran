@@ -1,37 +1,41 @@
 // components/ComponentePicker.jsx
-// Selector de componente afectado con lista fija en mayúsculas
+// Selector de componente con iconos de MaterialCommunityIcons
 
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, Modal, FlatList,
   StyleSheet, Platform, Pressable,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const COMPONENTES = [
-  'DEFENSAS',
-  'FAROS DELANTEROS',
-  'DIRECCIONALES',
-  'PANORÁMICO',
-  'RETROVISORES',
-  'PUERTAS',
-  'VENTANAS',
-  'CARROCERÍA LATERAL',
-  'ESTRIBOS',
-  'LLANTAS',
-  'GUARDABARROS',
-  'VIDRIO TRASERO',
-  'PLACAS',
-  'TECHO',
-  'LEVAS'
+const COMPONENTES_INFO = [
+  { nombre: 'DEFENSAS', icono: 'shield-car', color: '#3B82F6' },
+  { nombre: 'FAROS DELANTEROS', icono: 'car-light-high', color: '#F59E0B' },
+  { nombre: 'DIRECCIONALES', icono: 'car-shift-pattern', color: '#FCD34D' },
+  { nombre: 'PANORÁMICO', icono: 'window-maximize', color: '#06B6D4' },
+  { nombre: 'RETROVISORES', icono: 'mirror-rectangle', color: '#64748B' },
+  { nombre: 'PUERTAS', icono: 'car-door', color: '#22C55E' },
+  { nombre: 'VENTANAS', icono: 'window-closed', color: '#38BDF8' },
+  { nombre: 'CARROCERÍA LATERAL', icono: 'car-sports', color: '#A855F7' },
+  { nombre: 'ESTRIBOS', icono: 'shoe-formal', color: '#8B5CF6' },
+  { nombre: 'LLANTAS', icono: 'tire', color: '#1F2937' },
+  { nombre: 'GUARDABARROS', icono: 'shield-half-full', color: '#475569' },
+  { nombre: 'VIDRIO TRASERO', icono: 'aspect-ratio', color: '#0EA5E9' },
+  { nombre: 'PLACAS', icono: 'numeric', color: '#EAB308' },
+  { nombre: 'TECHO', icono: 'arrow-split-horizontal', color: '#94A3B8' },
+  { nombre: 'LEVAS', icono: 'car-cog', color: '#EF4444' },
+  { nombre: 'OTRO', icono: 'dots-horizontal-circle-outline', color: '#94A3B8' }
 ];
 
 export function ComponentePicker({ valor, onChange, error }) {
   const [abierto, setAbierto] = useState(false);
 
-  const seleccionar = (componente) => {
-    onChange(componente);
+  const seleccionar = (nombre) => {
+    onChange(nombre);
     setAbierto(false);
   };
+
+  const seleccionActual = COMPONENTES_INFO.find(c => c.nombre === valor) || { nombre: valor, icono: 'text-box-search-outline', color: '#4338CA' };
 
   return (
     <View style={estilos.contenedor}>
@@ -44,9 +48,14 @@ export function ComponentePicker({ valor, onChange, error }) {
         onPress={() => setAbierto(true)}
         activeOpacity={0.8}
       >
-        <Text style={[estilos.selectorTexto, !valor && estilos.placeholder]}>
-          {valor || 'Selecciona el componente...'}
-        </Text>
+        {valor ? (
+          <View style={estilos.valorFila}>
+            <MaterialCommunityIcons name={seleccionActual.icono} size={20} color={seleccionActual.color} />
+            <Text style={estilos.selectorTextoValor}>{valor}</Text>
+          </View>
+        ) : (
+          <Text style={estilos.placeholder}>Selecciona el componente...</Text>
+        )}
         <Text style={[estilos.chevron, abierto && estilos.chevronArriba]}>▾</Text>
       </TouchableOpacity>
 
@@ -67,20 +76,22 @@ export function ComponentePicker({ valor, onChange, error }) {
 
             {/* Lista de componentes */}
             <FlatList
-              data={COMPONENTES}
-              keyExtractor={(item) => item}
+              data={COMPONENTES_INFO}
+              keyExtractor={(item) => item.nombre}
               renderItem={({ item }) => {
-                const estaSeleccionado = valor === item;
+                const estaSeleccionado = valor === item.nombre;
                 return (
                   <TouchableOpacity
                     style={[estilos.opcion, estaSeleccionado && estilos.opcionSeleccionada]}
-                    onPress={() => seleccionar(item)}
+                    onPress={() => seleccionar(item.nombre)}
                     activeOpacity={0.7}
                   >
                     <View style={estilos.opcionFila}>
-                      <View style={[estilos.opcionDot, estaSeleccionado && estilos.opcionDotActivo]} />
+                      <View style={[estilos.iconoCaja, { backgroundColor: item.color + '1A' }]}>
+                        <MaterialCommunityIcons name={item.icono} size={18} color={item.color} />
+                      </View>
                       <Text style={[estilos.opcionTexto, estaSeleccionado && estilos.opcionTextoActivo]}>
-                        {item}
+                        {item.nombre}
                       </Text>
                     </View>
                     {estaSeleccionado && <Text style={estilos.checkmark}>✓</Text>}
@@ -106,12 +117,13 @@ const estilos = StyleSheet.create({
   selector: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#F5F5F5', borderWidth: 1.5, borderColor: '#E0E0E0',
-    borderRadius: 10, paddingHorizontal: 14, paddingVertical: 13,
+    borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12,
   },
   selectorActivo: { borderColor: '#4338CA', backgroundColor: '#FFFFFF' },
   selectorError: { borderColor: '#D32F2F', backgroundColor: '#FFF8F8' },
-  selectorTexto: { fontSize: 15, color: '#212121', flex: 1 },
-  placeholder: { color: '#BDBDBD' },
+  valorFila: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
+  selectorTextoValor: { fontSize: 15, color: '#212121', flex: 1, fontWeight: '600' },
+  placeholder: { color: '#BDBDBD', fontSize: 15, flex: 1 },
   chevron: { fontSize: 16, color: '#9E9E9E', marginLeft: 8 },
   chevronArriba: { transform: [{ rotate: '180deg' }], color: '#4338CA' },
   textoError: { color: '#D32F2F', fontSize: 12, marginTop: 4 },
@@ -140,16 +152,15 @@ const estilos = StyleSheet.create({
   // Opciones
   opcion: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 14,
+    paddingHorizontal: 20, paddingVertical: 12,
   },
   opcionSeleccionada: { backgroundColor: '#EEF2FF' },
   opcionFila: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  opcionDot: {
-    width: 10, height: 10, borderRadius: 5,
-    borderWidth: 2, borderColor: '#CBD5E1',
+  iconoCaja: {
+    width: 32, height: 32, borderRadius: 10,
+    alignItems: 'center', justifyContent: 'center',
   },
-  opcionDotActivo: { backgroundColor: '#4338CA', borderColor: '#4338CA' },
-  opcionTexto: { fontSize: 15, color: '#334155', fontWeight: '500' },
-  opcionTextoActivo: { color: '#4338CA', fontWeight: '700' },
+  opcionTexto: { fontSize: 14, color: '#334155', fontWeight: '600' },
+  opcionTextoActivo: { color: '#4338CA', fontWeight: '800' },
   checkmark: { fontSize: 16, color: '#4338CA', fontWeight: '900' },
 });

@@ -47,7 +47,12 @@ export function PhotoPicker({ uri, onChange, error }) {
 
   const elegirFuente = () => {
     if (Platform.OS === 'web') {
-      abrirGaleria();
+      const resp = window.confirm("¿Deseas tomar la foto con la CÁMARA?\n(Pulsa Aceptar para Cámara, Cancelar para Galería)");
+      if (resp) {
+        abrirCamara();
+      } else {
+        abrirGaleria();
+      }
       return;
     }
     Alert.alert('Evidencia fotográfica', 'Selecciona la fuente', [

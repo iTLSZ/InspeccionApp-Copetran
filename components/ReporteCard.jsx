@@ -6,46 +6,30 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Image,
   Modal, Pressable, Animated,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const COMPONENTES = {
-  'DEFENSAS':           { color: '#3B82F6' },
-  'FAROS DELANTEROS':   { color: '#F59E0B' },
-  'DIRECCIONALES':      { color: '#FCD34D' },
-  'PANORÁMICO':         { color: '#06B6D4' },
-  'RETROVISORES':       { color: '#64748B' },
-  'PUERTAS':            { color: '#22C55E' },
-  'VENTANAS':           { color: '#38BDF8' },
-  'CARROCERÍA LATERAL': { color: '#A855F7' },
-  'ESTRIBOS':           { color: '#8B5CF6' },
-  'LLANTAS':            { color: '#1F2937' },
-  'GUARDABARROS':       { color: '#475569' },
-  'VIDRIO TRASERO':     { color: '#0EA5E9' },
-  'PLACAS':             { color: '#EAB308' },
-  'TECHO':              { color: '#94A3B8' },
-  'LEVAS':              { color: '#EF4444' },
-  'OTRO':               { color: '#94A3B8' },
+  'DEFENSAS':           { color: '#3B82F6', icono: 'shield-car' },
+  'FAROS DELANTEROS':   { color: '#F59E0B', icono: 'car-light-high' },
+  'DIRECCIONALES':      { color: '#FCD34D', icono: 'car-shift-pattern' },
+  'PANORÁMICO':         { color: '#06B6D4', icono: 'window-maximize' },
+  'RETROVISORES':       { color: '#64748B', icono: 'mirror-rectangle' },
+  'PUERTAS':            { color: '#22C55E', icono: 'car-door' },
+  'VENTANAS':           { color: '#38BDF8', icono: 'window-closed' },
+  'CARROCERÍA LATERAL': { color: '#A855F7', icono: 'car-sports' },
+  'ESTRIBOS':           { color: '#8B5CF6', icono: 'shoe-formal' },
+  'LLANTAS':            { color: '#1F2937', icono: 'tire' },
+  'GUARDABARROS':       { color: '#475569', icono: 'shield-half-full' },
+  'VIDRIO TRASERO':     { color: '#0EA5E9', icono: 'aspect-ratio' },
+  'PLACAS':             { color: '#EAB308', icono: 'numeric' },
+  'TECHO':              { color: '#94A3B8', icono: 'arrow-split-horizontal' },
+  'LEVAS':              { color: '#EF4444', icono: 'car-cog' },
+  'OTRO':               { color: '#94A3B8', icono: 'dots-horizontal-circle-outline' },
 };
-const DEFAULT_INFO = { color: '#6366F1' };
-
-function formatearFechaEspecial(fechaStr) {
-  if (!fechaStr) return '';
-  const partes = fechaStr.split('/');
-  if (partes.length === 3) {
-    const diaNum = parseInt(partes[0], 10);
-    const mesNum = parseInt(partes[1], 10) - 1;
-    const anioNum = parseInt(partes[2], 10);
-    const date = new Date(anioNum, mesNum, diaNum);
-    if (!isNaN(date.getTime())) {
-      const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
-      const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-      return `${dias[date.getDay()]} , ${diaNum} ${meses[mesNum]} ${anioNum}`;
-    }
-  }
-  return fechaStr.toUpperCase();
-}
+const DEFAULT_INFO = { color: '#6366F1', icono: 'text-box-search-outline' };
 
 export function ReporteCard({ reporte }) {
+  // Si no está en la lista exacta, buscamos o asignamos default
   const info = COMPONENTES[reporte.componente] || DEFAULT_INFO;
   const [verFoto, setVerFoto] = useState(false);
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
@@ -61,7 +45,7 @@ export function ReporteCard({ reporte }) {
           onPress={reporte.linkFoto ? () => setVerFoto(true) : null}
           style={estilos.inner}
         >
-          {/* ── FOTO IZQUIERDA (más grande) ── */}
+          {/* ── FOTO IZQUIERDA ── */}
           <View style={estilos.fotoContenedor}>
             {reporte.linkFoto ? (
               <>
@@ -71,12 +55,11 @@ export function ReporteCard({ reporte }) {
                 </View>
               </>
             ) : (
-              <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '18' }]}>
-                <MaterialIcons name="image" size={32} color={info.color} style={{ opacity: 0.6 }} />
+              <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '1A' }]}>
+                <MaterialCommunityIcons name={info.icono} size={32} color={info.color} style={{ opacity: 0.7 }} />
                 <Text style={estilos.placeholderTexto}>Sin foto</Text>
               </View>
             )}
-            {/* Barra lateral de color */}
             <View style={[estilos.barraColor, { backgroundColor: info.color }]} />
           </View>
 
@@ -93,9 +76,9 @@ export function ReporteCard({ reporte }) {
               ) : null}
             </View>
 
-            {/* Componente con color */}
+            {/* Componente con icono de Material + color */}
             <View style={[estilos.componenteBadge, { backgroundColor: info.color + '18' }]}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: info.color }} />
+              <MaterialCommunityIcons name={info.icono} size={14} color={info.color} />
               <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
                 {reporte.componente || 'Sin componente'}
               </Text>
@@ -114,20 +97,17 @@ export function ReporteCard({ reporte }) {
             {/* Divider decorativo */}
             <View style={estilos.divider} />
 
-            {/* Pie formateado */}
-            <View style={estilos.pieInfo}>
-              <Text style={estilos.textoInfo} numberOfLines={1}>
-                FECHA : {formatearFechaEspecial(reporte.fecha)} {reporte.hora}
-              </Text>
-              <Text style={estilos.textoInfo} numberOfLines={1}>
-                RESPONSABLE : {reporte.responsable?.toUpperCase() || ''}
-              </Text>
-              {reporte.poblacion ? (
-                <Text style={estilos.textoInfo} numberOfLines={1}>
-                  POBLACION : {reporte.poblacion?.toUpperCase()}
-                </Text>
-              ) : null}
+            {/* Pie: fecha + responsable */}
+            <View style={estilos.pie}>
+              <Text style={estilos.fecha}>📅 {reporte.fecha}</Text>
+              <Text style={estilos.hora}>{reporte.hora}</Text>
             </View>
+            <Text style={estilos.responsable} numberOfLines={1}>
+              👤 {reporte.responsable}
+            </Text>
+            {reporte.poblacion ? (
+              <Text style={estilos.poblacion} numberOfLines={1}>📍 {reporte.poblacion}</Text>
+            ) : null}
           </View>
         </TouchableOpacity>
       </Animated.View>
@@ -174,45 +154,24 @@ const estilos = StyleSheet.create({
   },
 
   // ── Foto izquierda ──
-  fotoContenedor: {
-    width: 110,          // Más ancho que antes (era 90)
-    position: 'relative',
-  },
-  foto: {
-    width: 110,
-    height: '100%',
-    minHeight: 150,
-  },
+  fotoContenedor: { width: 110, position: 'relative' },
+  foto: { width: 110, height: '100%', minHeight: 150 },
   fotoOverlay: {
-    position: 'absolute',
-    bottom: 6, right: 6,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 8, padding: 4,
+    position: 'absolute', bottom: 6, right: 6,
+    backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 8, padding: 4,
   },
   fotoLupa: { fontSize: 12 },
   fotoPlaceholder: {
     width: 110, minHeight: 150,
     alignItems: 'center', justifyContent: 'center', gap: 6,
   },
-  placeholderEmoji: { fontSize: 32 },
-  placeholderTexto: { fontSize: 10, color: '#94A3B8', fontWeight: '600' },
-  barraColor: {
-    position: 'absolute', right: 0, top: 0, bottom: 0, width: 4,
-  },
+  placeholderTexto: { fontSize: 11, color: '#64748B', fontWeight: '700' },
+  barraColor: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 4 },
 
   // ── Contenido derecha ──
-  contenido: {
-    flex: 1,
-    padding: 12,
-    gap: 5,
-    justifyContent: 'center',
-  },
-  placaFila: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-  },
-  placa: {
-    fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2,
-  },
+  contenido: { flex: 1, padding: 12, gap: 5, justifyContent: 'center' },
+  placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
   busetaBadge: {
     backgroundColor: '#F1F5F9', borderRadius: 8,
     paddingHorizontal: 6, paddingVertical: 2,
@@ -224,25 +183,20 @@ const estilos = StyleSheet.create({
     alignSelf: 'flex-start', borderRadius: 10,
     paddingHorizontal: 8, paddingVertical: 4, maxWidth: '100%',
   },
-  componenteEmoji: { fontSize: 13 },
   componenteTexto: { fontSize: 12, fontWeight: '800', flexShrink: 1 },
   prelBadge: {
-    backgroundColor: '#F97316', borderRadius: 6,
-    paddingHorizontal: 5, paddingVertical: 1,
+    backgroundColor: '#F97316', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1,
   },
   prelTexto: { color: '#FFF', fontSize: 9, fontWeight: '900' },
 
   descripcion: { fontSize: 12, color: '#64748B', lineHeight: 17 },
 
-  divider: {
-    height: 1, backgroundColor: '#F1F5F9', marginVertical: 4,
-  },
-  pieInfo: {
-    gap: 3, marginTop: 4,
-  },
-  textoInfo: { 
-    fontSize: 10, color: '#64748B', fontWeight: '700', letterSpacing: 0.5 
-  },
+  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 2 },
+  pie: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  fecha: { fontSize: 11, color: '#475569', fontWeight: '600' },
+  hora:  { fontSize: 11, color: '#94A3B8' },
+  responsable: { fontSize: 11, color: '#64748B' },
+  poblacion:   { fontSize: 11, color: '#94A3B8' },
 
   // ── Modal ──
   modalFondo: {

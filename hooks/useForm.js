@@ -22,6 +22,7 @@ const ESTADO_INICIAL = {
   fotoUri: null,
   linkFoto: '',
   componente: '',
+  otroComponente: '',
   descripcion: '',
   preliminar: false,
   responsable: '',
@@ -52,6 +53,10 @@ export function useForm() {
         nuevosErrores[campo] = 'Este campo es obligatorio';
       }
     });
+
+    if (campos.componente === 'OTRO' && (!campos.otroComponente || !campos.otroComponente.trim())) {
+      nuevosErrores.otroComponente = 'Especifica el componente';
+    }
 
     if (campos.placa && !/^[A-Z]{3}[0-9]{3}$|^[A-Z]{3}[0-9]{2}[A-Z]$/.test(campos.placa)) {
       nuevosErrores.placa = 'Formato inválido (ej: ABC123 o ABC12D)';
