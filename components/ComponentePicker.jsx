@@ -6,25 +6,24 @@ import {
   View, Text, TouchableOpacity, Modal, FlatList,
   StyleSheet, Platform, Pressable,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 
 const COMPONENTES_INFO = [
-  { nombre: 'DEFENSAS', icono: 'shield', color: '#3B82F6' },
-  { nombre: 'FAROS DELANTEROS', icono: 'highlight', color: '#F59E0B' },
-  { nombre: 'DIRECCIONALES', icono: 'swap-horiz', color: '#FCD34D' },
-  { nombre: 'PANORÁMICO', icono: 'aspect-ratio', color: '#06B6D4' },
-  { nombre: 'RETROVISORES', icono: 'flip-to-back', color: '#64748B' },
-  { nombre: 'PUERTAS', icono: 'meeting-room', color: '#22C55E' },
-  { nombre: 'VENTANAS', icono: 'crop-square', color: '#38BDF8' },
-  { nombre: 'CARROCERÍA LATERAL', icono: 'directions-bus', color: '#A855F7' },
-  { nombre: 'ESTRIBOS', icono: 'format-line-spacing', color: '#8B5CF6' },
-  { nombre: 'LLANTAS', icono: 'donut-large', color: '#1F2937' },
-  { nombre: 'GUARDABARROS', icono: 'security', color: '#475569' },
-  { nombre: 'VIDRIO TRASERO', icono: 'picture-in-picture', color: '#0EA5E9' },
-  { nombre: 'PLACAS', icono: 'format-list-numbered', color: '#EAB308' },
-  { nombre: 'TECHO', icono: 'vertical-align-top', color: '#94A3B8' },
-  { nombre: 'LEVAS', icono: 'settings', color: '#EF4444' },
-  { nombre: 'OTRO', icono: 'more-horiz', color: '#94A3B8' }
+  { nombre: 'DEFENSAS', emoji: '🛡️', color: '#3B82F6' },
+  { nombre: 'FAROS DELANTEROS', emoji: '🔦', color: '#F59E0B' },
+  { nombre: 'DIRECCIONALES', emoji: '↔️', color: '#FCD34D' },
+  { nombre: 'PANORÁMICO', emoji: '🪟', color: '#06B6D4' },
+  { nombre: 'RETROVISORES', emoji: '🔍', color: '#64748B' },
+  { nombre: 'PUERTAS', emoji: '🚪', color: '#22C55E' },
+  { nombre: 'VENTANAS', emoji: '🖼️', color: '#38BDF8' },
+  { nombre: 'CARROCERÍA LATERAL', emoji: '🚌', color: '#A855F7' },
+  { nombre: 'ESTRIBOS', emoji: '🪜', color: '#8B5CF6' },
+  { nombre: 'LLANTAS', emoji: '🛞', color: '#1F2937' },
+  { nombre: 'GUARDABARROS', emoji: '🛡️', color: '#475569' },
+  { nombre: 'VIDRIO TRASERO', emoji: '🪟', color: '#0EA5E9' },
+  { nombre: 'PLACAS', emoji: '🏷️', color: '#EAB308' },
+  { nombre: 'TECHO', emoji: '⏫', color: '#94A3B8' },
+  { nombre: 'LEVAS', emoji: '⚙️', color: '#EF4444' },
+  { nombre: 'OTRO', emoji: '📝', color: '#94A3B8' }
 ];
 
 export function ComponentePicker({ valor, onChange, error }) {
@@ -35,7 +34,7 @@ export function ComponentePicker({ valor, onChange, error }) {
     setAbierto(false);
   };
 
-  const seleccionActual = COMPONENTES_INFO.find(c => c.nombre === valor) || { nombre: valor, icono: 'find-in-page', color: '#4338CA' };
+  const seleccionActual = COMPONENTES_INFO.find(c => c.nombre === valor) || { nombre: valor, emoji: '📋', color: '#4338CA' };
 
   return (
     <View style={estilos.contenedor}>
@@ -50,7 +49,7 @@ export function ComponentePicker({ valor, onChange, error }) {
       >
         {valor ? (
           <View style={estilos.valorFila}>
-            <MaterialIcons name={seleccionActual.icono} size={20} color={seleccionActual.color} />
+            <Text style={{ fontSize: 18 }}>{seleccionActual.emoji}</Text>
             <Text style={estilos.selectorTextoValor}>{valor}</Text>
           </View>
         ) : (
@@ -88,7 +87,7 @@ export function ComponentePicker({ valor, onChange, error }) {
                   >
                     <View style={estilos.opcionFila}>
                       <View style={[estilos.iconoCaja, { backgroundColor: item.color + '1A' }]}>
-                        <MaterialIcons name={item.icono} size={18} color={item.color} />
+                        <Text style={{ fontSize: 16 }}>{item.emoji}</Text>
                       </View>
                       <Text style={[estilos.opcionTexto, estaSeleccionado && estilos.opcionTextoActivo]}>
                         {item.nombre}
