@@ -107,6 +107,7 @@ export function ReporteCard({ reporte }) {
               {/* Col Derecha: Tiempo + Responsable + Población */}
               <View style={estilos.colDerecha}>
                 <Text style={estilos.horaDestacada}>{reporte.hora ? reporte.hora.toUpperCase() : ''}</Text>
+                <View style={estilos.separadorHoraFecha} />
                 <Text style={estilos.fechaDestacada}>{fechaMostrar}</Text>
                 
                 {/* Responsable se movió a Col Izquierda con Población */}
@@ -185,12 +186,13 @@ const estilos = StyleSheet.create({
   contenido: { flex: 1, padding: 12, gap: 5, justifyContent: 'center' },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   colIzquierda: { flex: 1, paddingRight: 6, gap: 8, alignItems: 'flex-start' },
-  colDerecha: { flexShrink: 1, alignItems: 'flex-end', maxWidth: '55%' },
+  colDerecha: { flexShrink: 1, alignItems: 'center', maxWidth: '45%' },
   
   placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
-  horaDestacada: { fontSize: 17, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
-  fechaDestacada: { fontSize: 16, color: '#475569', fontWeight: '800', marginTop: -2 },
+  horaDestacada: { fontSize: 16, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
+  separadorHoraFecha: { width: 40, height: 2, backgroundColor: '#CBD5E1', marginVertical: 4, borderRadius: 2 },
+  fechaDestacada: { fontSize: 16, color: '#475569', fontWeight: '800' },
   busetaBadge: {
     backgroundColor: '#F1F5F9', borderRadius: 8,
     paddingHorizontal: 6, paddingVertical: 2,
