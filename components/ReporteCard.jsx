@@ -72,46 +72,51 @@ export function ReporteCard({ reporte }) {
           {/* ── CONTENIDO DERECHA ── */}
           <View style={estilos.contenido}>
 
-            {/* Placa destacada y Fecha/Hora */}
-            <View style={estilos.placaFilaContenedor}>
-              <View style={estilos.placaFila}>
-                <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
-                {reporte.numeroBuseta ? (
-                  <View style={estilos.busetaBadge}>
-                    <Text style={estilos.busetaTexto}>#{reporte.numeroBuseta}</Text>
-                  </View>
-                ) : null}
+            {/* ── 2 COLUMNAS SUPERIORES ── */}
+            <View style={estilos.topRow}>
+              
+              {/* Col Izquierda: Placa + Componente */}
+              <View style={estilos.colIzquierda}>
+                <View style={estilos.placaFila}>
+                  <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
+                  {reporte.numeroBuseta ? (
+                    <View style={estilos.busetaBadge}>
+                      <Text style={estilos.busetaTexto}>#{reporte.numeroBuseta}</Text>
+                    </View>
+                  ) : null}
+                </View>
+
+                {/* Componente con emoji + color */}
+                <View style={[estilos.componenteBadge, { backgroundColor: info.color + '18' }]}>
+                  <Text style={{ fontSize: 13 }}>{info.emoji}</Text>
+                  <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
+                    {reporte.componente || 'Sin componente'}
+                  </Text>
+                  {reporte.preliminar && (
+                    <View style={estilos.prelBadge}>
+                      <Text style={estilos.prelTexto}>PREV</Text>
+                    </View>
+                  )}
+                </View>
               </View>
-              <View style={estilos.tiempoCaja}>
+
+              {/* Col Derecha: Tiempo + Responsable + Población */}
+              <View style={estilos.colDerecha}>
                 <Text style={estilos.horaDestacada}>{reporte.hora}</Text>
                 <Text style={estilos.fechaDestacada}>{fechaMostrar}</Text>
-              </View>
-            </View>
-
-            {/* Componente con emoji + color */}
-            <View style={[estilos.componenteBadge, { backgroundColor: info.color + '18' }]}>
-              <Text style={{ fontSize: 13 }}>{info.emoji}</Text>
-              <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
-                {reporte.componente || 'Sin componente'}
-              </Text>
-              {reporte.preliminar && (
-                <View style={estilos.prelBadge}>
-                  <Text style={estilos.prelTexto}>PREV</Text>
+                
+                <View style={estilos.responsableContenedorWrapper}>
+                  <Text style={estilos.responsableDestacado} numberOfLines={1}>
+                    👤 {reporte.responsable}
+                  </Text>
+                  {reporte.poblacion ? (
+                    <Text style={estilos.poblacionDestacada} numberOfLines={1}>📍 {reporte.poblacion}</Text>
+                  ) : null}
                 </View>
-              )}
+              </View>
             </View>
 
             <View style={estilos.divider} />
-
-            {/* Responsable y Población en Grande */}
-            <View style={estilos.responsableContenedor}>
-              <Text style={estilos.responsableDestacado} numberOfLines={1}>
-                👤 {reporte.responsable}
-              </Text>
-              {reporte.poblacion ? (
-                <Text style={estilos.poblacionDestacada} numberOfLines={1}>📍 {reporte.poblacion}</Text>
-              ) : null}
-            </View>
 
             {/* Observación abajo */}
             <View style={estilos.observacionContenedor}>
@@ -181,12 +186,14 @@ const estilos = StyleSheet.create({
 
   // ── Contenido derecha ──
   contenido: { flex: 1, padding: 12, gap: 5, justifyContent: 'center' },
-  placaFilaContenedor: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  colIzquierda: { flex: 1, paddingRight: 6, gap: 8, alignItems: 'flex-start' },
+  colDerecha: { flexShrink: 1, alignItems: 'flex-end', maxWidth: '55%' },
+  
   placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
-  tiempoCaja: { alignItems: 'flex-end' },
   horaDestacada: { fontSize: 17, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
-  fechaDestacada: { fontSize: 13, color: '#475569', fontWeight: '800', marginTop: 2 },
+  fechaDestacada: { fontSize: 13, color: '#475569', fontWeight: '800', marginTop: -2 },
   busetaBadge: {
     backgroundColor: '#F1F5F9', borderRadius: 8,
     paddingHorizontal: 6, paddingVertical: 2,
@@ -204,11 +211,11 @@ const estilos = StyleSheet.create({
   },
   prelTexto: { color: '#FFF', fontSize: 9, fontWeight: '900' },
 
-  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 6 },
+  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 4 },
   
-  responsableContenedor: { gap: 2 },
-  responsableDestacado: { fontSize: 15, fontWeight: '900', color: '#1E293B' },
-  poblacionDestacada: { fontSize: 14, fontWeight: '700', color: '#64748B' },
+  responsableContenedorWrapper: { gap: 2, alignItems: 'flex-end', marginTop: 6, width: '100%' },
+  responsableDestacado: { fontSize: 13, fontWeight: '900', color: '#1E293B', textAlign: 'right' },
+  poblacionDestacada: { fontSize: 12, fontWeight: '700', color: '#64748B', textAlign: 'right' },
   
   observacionContenedor: { backgroundColor: '#F8FAFC', padding: 8, borderRadius: 8, marginTop: 4 },
   observacionTexto: { fontSize: 12, color: '#475569', lineHeight: 18, fontStyle: 'italic' },
