@@ -127,7 +127,7 @@ export async function getRows(limite = 20) {
     poblacion:    fila[2]  || '',
     numeroBuseta: fila[3]  || '',
     placa:        fila[4]  || '',
-    linkFoto:     fila[5]  || '',   // URL de Drive si el script actualizado la guardó
+    linkFoto:     fila[11] || fila[5] || '',  // col 12 = URL foto para la app, col 6 = fallback
     componente:   fila[6]  || '',
     descripcion:  fila[7]  || '',
     preliminar:   fila[8]  === 'Sí',
