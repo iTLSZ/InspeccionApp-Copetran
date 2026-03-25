@@ -119,9 +119,6 @@ export default function Inicio() {
           opacity: headerOpacity,
           transform: [{ translateY: headerSlide }]
         }]}>
-          <View style={estilos.logoWrapper}>
-            <Image source={require('../public/logoouser.png')} style={estilos.logo} resizeMode="contain" />
-          </View>
           <Text style={estilos.headerEmpresa} numberOfLines={1}>{NOMBRE_EMPRESA}</Text>
           <Text style={estilos.headerSub}>Sistema de Inspección de Equipos</Text>
           <View style={[estilos.statusPill, conectado ? estilos.statusOnline : estilos.statusOffline]}>
