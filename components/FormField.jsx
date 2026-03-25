@@ -21,7 +21,7 @@ export function FormField({
   placeholder,
   multiline = false,
   keyboardType = 'default',
-  autoCapitalize = 'none',
+  autoCapitalize = 'characters',
   obligatorio = false,
   editable = true,
   numberOfLines = 1,
@@ -32,7 +32,6 @@ export function FormField({
     <View style={estilos.contenedor}>
       <Text style={estilos.label}>
         {label}
-        {obligatorio && <Text style={estilos.asterisco}> *</Text>}
       </Text>
 
       <TextInput
@@ -44,7 +43,7 @@ export function FormField({
           !editable && estilos.inputDeshabilitado,
         ]}
         value={valor}
-        onChangeText={onChange}
+        onChangeText={(texto) => onChange(texto.toUpperCase())}
         placeholder={placeholder}
         placeholderTextColor="#BDBDBD"
         multiline={multiline}

@@ -39,7 +39,7 @@ export function ComponentePicker({ valor, onChange, error }) {
   return (
     <View style={estilos.contenedor}>
       <Text style={estilos.label}>
-        COMPONENTE AFECTADO <Text style={estilos.obligatorio}>*</Text>
+        COMPONENTE AFECTADO
       </Text>
 
       <TouchableOpacity
