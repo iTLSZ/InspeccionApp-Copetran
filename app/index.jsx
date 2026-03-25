@@ -106,33 +106,8 @@ export default function Inicio() {
             </View>
           </View>
 
-          {/* Stats rápidos */}
-          <View style={estilos.statsRow}>
-            <View style={estilos.statCaja}>
-              <Text style={estilos.statNum}>{reportes.length}</Text>
-              <Text style={estilos.statLabel}>Reportes</Text>
-            </View>
-            <View style={estilos.statDivider} />
-            <View style={estilos.statCaja}>
-              <Text style={estilos.statNum}>{pendientes}</Text>
-              <Text style={estilos.statLabel}>Pendientes</Text>
-            </View>
-            <View style={estilos.statDivider} />
-            <View style={estilos.statCaja}>
-              <Text style={estilos.statNum}>{reportes.filter(r => r.preliminar).length}</Text>
-              <Text style={estilos.statLabel}>Preliminar</Text>
-            </View>
-          </View>
 
-          {/* Botón sync si hay pendientes */}
-          {pendientes > 0 && (
-            <TouchableOpacity onPress={handleSincronizar} disabled={sincronizando || !conectado} style={estilos.syncBtn}>
-              <MaterialIcons name="cloud-upload" size={14} color="#FFF" />
-              <Text style={estilos.syncBtnTexto}>
-                {sincronizando ? 'Sincronizando...' : `Subir ${pendientes} reportes`}
-              </Text>
-            </TouchableOpacity>
-          )}
+
         </Animated.View>
       </View>
 
