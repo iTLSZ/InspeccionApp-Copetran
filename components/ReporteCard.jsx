@@ -28,6 +28,23 @@ const COMPONENTES = {
 };
 const DEFAULT_INFO = { color: '#6366F1' };
 
+function formatearFechaEspecial(fechaStr) {
+  if (!fechaStr) return '';
+  const partes = fechaStr.split('/');
+  if (partes.length === 3) {
+    const diaNum = parseInt(partes[0], 10);
+    const mesNum = parseInt(partes[1], 10) - 1;
+    const anioNum = parseInt(partes[2], 10);
+    const date = new Date(anioNum, mesNum, diaNum);
+    if (!isNaN(date.getTime())) {
+      const dias = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+      const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+      return `${dias[date.getDay()]} , ${diaNum} ${meses[mesNum]} ${anioNum}`;
+    }
+  }
+  return fechaStr.toUpperCase();
+}
+
 export function ReporteCard({ reporte }) {
   const info = COMPONENTES[reporte.componente] || DEFAULT_INFO;
   const [verFoto, setVerFoto] = useState(false);
@@ -97,17 +114,20 @@ export function ReporteCard({ reporte }) {
             {/* Divider decorativo */}
             <View style={estilos.divider} />
 
-            {/* Pie: fecha + responsable */}
-            <View style={estilos.pie}>
-              <Text style={estilos.fecha}>📅 {reporte.fecha}</Text>
-              <Text style={estilos.hora}>{reporte.hora}</Text>
+            {/* Pie formateado */}
+            <View style={estilos.pieInfo}>
+              <Text style={estilos.textoInfo} numberOfLines={1}>
+                FECHA : {formatearFechaEspecial(reporte.fecha)} {reporte.hora}
+              </Text>
+              <Text style={estilos.textoInfo} numberOfLines={1}>
+                RESPONSABLE : {reporte.responsable?.toUpperCase() || ''}
+              </Text>
+              {reporte.poblacion ? (
+                <Text style={estilos.textoInfo} numberOfLines={1}>
+                  POBLACION : {reporte.poblacion?.toUpperCase()}
+                </Text>
+              ) : null}
             </View>
-            <Text style={estilos.responsable} numberOfLines={1}>
-              👤 {reporte.responsable}
-            </Text>
-            {reporte.poblacion ? (
-              <Text style={estilos.poblacion} numberOfLines={1}>📍 {reporte.poblacion}</Text>
-            ) : null}
           </View>
         </TouchableOpacity>
       </Animated.View>
@@ -215,15 +235,14 @@ const estilos = StyleSheet.create({
   descripcion: { fontSize: 12, color: '#64748B', lineHeight: 17 },
 
   divider: {
-    height: 1, backgroundColor: '#F1F5F9', marginVertical: 2,
+    height: 1, backgroundColor: '#F1F5F9', marginVertical: 4,
   },
-  pie: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+  pieInfo: {
+    gap: 3, marginTop: 4,
   },
-  fecha: { fontSize: 11, color: '#475569', fontWeight: '600' },
-  hora:  { fontSize: 11, color: '#94A3B8' },
-  responsable: { fontSize: 11, color: '#64748B' },
-  poblacion:   { fontSize: 11, color: '#94A3B8' },
+  textoInfo: { 
+    fontSize: 10, color: '#64748B', fontWeight: '700', letterSpacing: 0.5 
+  },
 
   // ── Modal ──
   modalFondo: {
