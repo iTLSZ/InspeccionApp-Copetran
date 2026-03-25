@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FormField } from '../components/FormField';
+import { PoblacionPicker } from '../components/PoblacionPicker';
 import { PhotoPicker } from '../components/PhotoPicker';
 import { useForm } from '../hooks/useForm';
 import { appendRow } from '../services/googleSheets';
@@ -134,8 +135,7 @@ export default function NuevoReporte({ onGuardado }) {
             </View>
           </View>
 
-          <FormField label="Población" valor={campos.poblacion} onChange={(v) => setcampo('poblacion', v)}
-            placeholder="Ciudad o municipio" />
+          <PoblacionPicker valor={campos.poblacion} onChange={(v) => setcampo('poblacion', v)} />
 
           <View style={estilos.fila2col}>
             <View style={{ flex: 1, marginRight: 8 }}>
