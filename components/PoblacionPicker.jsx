@@ -60,19 +60,6 @@ export function PoblacionPicker({ valor, onChange, error }) {
               </TouchableOpacity>
             </View>
 
-            {/* Opción "ninguna" */}
-            <TouchableOpacity
-              style={[estilos.opcion, !valor && estilos.opcionSeleccionada]}
-              onPress={() => seleccionar('')}
-            >
-              <Text style={[estilos.opcionTexto, !valor && estilos.opcionTextoActivo]}>
-                — Sin especificar —
-              </Text>
-              {!valor && <Text style={estilos.checkmark}>✓</Text>}
-            </TouchableOpacity>
-
-            <View style={estilos.separador} />
-
             {/* Lista de municipios */}
             <FlatList
               data={POBLACIONES}
