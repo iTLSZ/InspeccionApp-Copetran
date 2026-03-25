@@ -142,7 +142,7 @@ export default function Inicio() {
         }]}>
           <View style={estilos.logoFila}>
             <View style={estilos.logoWrapper}>
-              <Image source={require('../public/ICON.png')} style={estilos.logo} resizeMode="contain" />
+              <Image source={require('../public/logoouser.png')} style={estilos.logo} resizeMode="contain" />
             </View>
             <View style={estilos.headerTextos}>
               <Text style={estilos.headerEmpresa} numberOfLines={1}>{NOMBRE_EMPRESA}</Text>
