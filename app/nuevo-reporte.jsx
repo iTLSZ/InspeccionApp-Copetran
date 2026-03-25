@@ -9,6 +9,7 @@ import {
 import { useRouter } from 'expo-router';
 import { FormField } from '../components/FormField';
 import { PoblacionPicker } from '../components/PoblacionPicker';
+import { ComponentePicker } from '../components/ComponentePicker';
 import { PhotoPicker } from '../components/PhotoPicker';
 import { useForm } from '../hooks/useForm';
 import { appendRow } from '../services/googleSheets';
@@ -171,9 +172,7 @@ export default function NuevoReporte({ onGuardado }) {
             <Text style={estilos.seccionTitulo}>Hallazgo</Text>
           </View>
 
-          <FormField label="Componente afectado" valor={campos.componente}
-            onChange={(v) => setcampo('componente', v)} error={errores.componente}
-            obligatorio placeholder="Ej. Motor, Espejo, Parachoques..." />
+          <ComponentePicker valor={campos.componente} onChange={(v) => setcampo('componente', v)} error={errores.componente} />
 
           <FormField label="Descripción" valor={campos.descripcion}
             onChange={(v) => setcampo('descripcion', v)} error={errores.descripcion}

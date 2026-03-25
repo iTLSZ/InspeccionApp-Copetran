@@ -8,16 +8,21 @@ import {
 } from 'react-native';
 
 const COMPONENTES = {
-  Motor:               { color: '#EF4444', emoji: '⚙️' },
-  Carrocería:          { color: '#A855F7', emoji: '🚌' },
-  Frenos:              { color: '#EC4899', emoji: '🛑' },
-  Suspensión:          { color: '#10B981', emoji: '🔧' },
-  Eléctrico:           { color: '#F59E0B', emoji: '⚡' },
-  Neumáticos:          { color: '#3B82F6', emoji: '🔵' },
-  Vidrios:             { color: '#06B6D4', emoji: '🪟' },
-  Puertas:             { color: '#22C55E', emoji: '🚪' },
-  'Aire acondicionado':{ color: '#0EA5E9', emoji: '❄️' },
-  Otro:                { color: '#94A3B8', emoji: '🔩' },
+  'DEFENSAS':           { color: '#3B82F6', emoji: '🛡️' },
+  'FAROS DELANTEROS':   { color: '#F59E0B', emoji: '💡' },
+  'DIRECCIONALES':      { color: '#FCD34D', emoji: '↔️' },
+  'PANORÁMICO':         { color: '#06B6D4', emoji: '🪟' },
+  'RETROVISORES':       { color: '#64748B', emoji: '🔍' },
+  'PUERTAS':            { color: '#22C55E', emoji: '🚪' },
+  'VENTANAS':           { color: '#38BDF8', emoji: '🖼️' },
+  'CARROCERÍA LATERAL': { color: '#A855F7', emoji: '🚌' },
+  'ESTRIBOS':           { color: '#8B5CF6', emoji: '🪜' },
+  'LLANTAS':            { color: '#1F2937', emoji: '🛞' },
+  'GUARDABARROS':       { color: '#475569', emoji: '🛡️' },
+  'VIDRIO TRASERO':     { color: '#0EA5E9', emoji: '🪟' },
+  'PLACAS':             { color: '#EAB308', emoji: '🔢' },
+  'TECHO':              { color: '#94A3B8', emoji: '⬆️' },
+  'LEVAS':              { color: '#EF4444', emoji: '⚙️' },
 };
 const DEFAULT_INFO = { color: '#6366F1', emoji: '📋' };
 
