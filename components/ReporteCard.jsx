@@ -72,14 +72,17 @@ export function ReporteCard({ reporte }) {
           {/* ── CONTENIDO DERECHA ── */}
           <View style={estilos.contenido}>
 
-            {/* Placa destacada */}
-            <View style={estilos.placaFila}>
-              <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
-              {reporte.numeroBuseta ? (
-                <View style={estilos.busetaBadge}>
-                  <Text style={estilos.busetaTexto}>#{reporte.numeroBuseta}</Text>
-                </View>
-              ) : null}
+            {/* Placa destacada y Hora */}
+            <View style={estilos.placaFilaContenedor}>
+              <View style={estilos.placaFila}>
+                <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
+                {reporte.numeroBuseta ? (
+                  <View style={estilos.busetaBadge}>
+                    <Text style={estilos.busetaTexto}>#{reporte.numeroBuseta}</Text>
+                  </View>
+                ) : null}
+              </View>
+              <Text style={estilos.horaDestacada}>{reporte.hora}</Text>
             </View>
 
             {/* Componente con emoji + color */}
@@ -106,7 +109,7 @@ export function ReporteCard({ reporte }) {
             {/* Pie: fecha + responsable */}
             <View style={estilos.pie}>
               <Text style={estilos.fecha}>📅 {fechaMostrar}</Text>
-              <Text style={estilos.hora}>{reporte.hora}</Text>
+              {/* Hora ha sido movida arriba */}
             </View>
             <Text style={estilos.responsable} numberOfLines={1}>
               👤 {reporte.responsable}
@@ -176,8 +179,10 @@ const estilos = StyleSheet.create({
 
   // ── Contenido derecha ──
   contenido: { flex: 1, padding: 12, gap: 5, justifyContent: 'center' },
+  placaFilaContenedor: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
+  horaDestacada: { fontSize: 17, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
   busetaBadge: {
     backgroundColor: '#F1F5F9', borderRadius: 8,
     paddingHorizontal: 6, paddingVertical: 2,
