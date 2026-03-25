@@ -106,7 +106,7 @@ export function ReporteCard({ reporte }) {
 
               {/* Col Derecha: Tiempo + Responsable + Población */}
               <View style={estilos.colDerecha}>
-                <Text style={estilos.horaDestacada}>{reporte.hora}</Text>
+                <Text style={estilos.horaDestacada}>{reporte.hora ? reporte.hora.toUpperCase() : ''}</Text>
                 <Text style={estilos.fechaDestacada}>{fechaMostrar}</Text>
                 
                 {/* Responsable se movió a Col Izquierda con Población */}
@@ -133,7 +133,7 @@ export function ReporteCard({ reporte }) {
               <Image source={{ uri: reporte.linkFoto }} style={estilos.fotoAmpliada} resizeMode="contain" />
               <View style={estilos.modalInfo}>
                 <Text style={estilos.modalPlaca}>{reporte.placa}</Text>
-                <Text style={estilos.modalSub}>{reporte.componente}  ·  {fechaMostrar} {reporte.hora}</Text>
+                <Text style={estilos.modalSub}>{reporte.componente}  ·  {fechaMostrar} {reporte.hora ? reporte.hora.toUpperCase() : ''}</Text>
               </View>
               <TouchableOpacity style={estilos.modalCerrar} onPress={() => setVerFoto(false)}>
                 <Text style={estilos.modalCerrarTexto}>✕  Cerrar</Text>
@@ -190,7 +190,7 @@ const estilos = StyleSheet.create({
   placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
   horaDestacada: { fontSize: 17, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
-  fechaDestacada: { fontSize: 13, color: '#475569', fontWeight: '800', marginTop: -2 },
+  fechaDestacada: { fontSize: 16, color: '#475569', fontWeight: '800', marginTop: -2 },
   busetaBadge: {
     backgroundColor: '#F1F5F9', borderRadius: 8,
     paddingHorizontal: 6, paddingVertical: 2,
