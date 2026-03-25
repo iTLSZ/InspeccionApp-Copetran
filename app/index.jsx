@@ -162,10 +162,11 @@ export default function Inicio() {
           <Text style={estilos.seccionTitulo}>Últimos reportes</Text>
           <Text style={estilos.seccionSub}>Toca una tarjeta para ver la foto</Text>
         </View>
-        <TouchableOpacity onPress={onRefresh} style={estilos.btnRefresh}>
+        <TouchableOpacity onPress={onRefresh} style={estilos.btnRefresh} activeOpacity={0.7}>
           <Animated.View style={{ transform: [{ rotate: spin }] }}>
-            <MaterialIcons name="refresh" size={18} color="#6366F1" />
+            <Text style={{ fontSize: 13 }}>🔄</Text>
           </Animated.View>
+          <Text style={estilos.btnRefreshTexto}>Actualizar</Text>
         </TouchableOpacity>
       </View>
 
@@ -275,9 +276,12 @@ const estilos = StyleSheet.create({
   seccionTitulo: { fontSize: 18, fontWeight: '900', color: '#1E293B' },
   seccionSub: { fontSize: 12, color: '#94A3B8', marginTop: 2 },
   btnRefresh: {
-    backgroundColor: '#EEF2FF', borderRadius: 10,
-    padding: 8, borderWidth: 1, borderColor: '#C7D2FE',
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#EEF2FF', borderRadius: 14,
+    paddingVertical: 6, paddingHorizontal: 12,
+    borderWidth: 1, borderColor: '#C7D2FE',
   },
+  btnRefreshTexto: { fontSize: 12, fontWeight: '800', color: '#4338CA' },
 
   btnInstalarPWA: {
     backgroundColor: '#10B981', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14,
