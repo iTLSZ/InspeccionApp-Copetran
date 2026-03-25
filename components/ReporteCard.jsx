@@ -1,8 +1,8 @@
 // components/ReporteCard.jsx
 // Card para mostrar un reporte en el historial
 
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
 
 const COLORES_COMPONENTE = {
   Motor: '#E53935',
@@ -19,18 +19,40 @@ const COLORES_COMPONENTE = {
 
 export function ReporteCard({ reporte }) {
   const colorComponente = COLORES_COMPONENTE[reporte.componente] || '#757575';
+  const [verFoto, setVerFoto] = useState(false);
 
   return (
     <View style={estilos.card}>
-      {/* Cabecera */}
+      {/* Cabecera: info + miniatura de foto */}
       <View style={estilos.cabecera}>
         <View style={estilos.placaContenedor}>
           <Text style={estilos.placa}>{reporte.placa}</Text>
           <Text style={estilos.buseta}>Buseta #{reporte.numeroBuseta}</Text>
         </View>
-        <View style={estilos.fechaContenedor}>
-          <Text style={estilos.fecha}>{reporte.fecha}</Text>
-          <Text style={estilos.hora}>{reporte.hora}</Text>
+
+        <View style={estilos.derechaContenedor}>
+          <View style={estilos.fechaContenedor}>
+            <Text style={estilos.fecha}>{reporte.fecha}</Text>
+            <Text style={estilos.hora}>{reporte.hora}</Text>
+          </View>
+
+          {/* Miniatura tocable si hay foto */}
+          {reporte.linkFoto ? (
+            <TouchableOpacity onPress={() => setVerFoto(true)} activeOpacity={0.8}>
+              <Image
+                source={{ uri: reporte.linkFoto }}
+                style={estilos.miniatura}
+                resizeMode="cover"
+              />
+              <View style={estilos.miniaturaOverlay}>
+                <Text style={estilos.miniaturaIcono}>🔍</Text>
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <View style={estilos.sinFoto}>
+              <Text style={estilos.sinFotoIcono}>📷</Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -59,11 +81,23 @@ export function ReporteCard({ reporte }) {
         ) : null}
       </View>
 
-      {/* Link foto si existe */}
+      {/* Modal para ver foto ampliada */}
       {reporte.linkFoto ? (
-        <TouchableOpacity onPress={() => Linking.openURL(reporte.linkFoto)}>
-          <Text style={estilos.linkFoto}>📎 Ver evidencia fotográfica</Text>
-        </TouchableOpacity>
+        <Modal visible={verFoto} transparent animationType="fade" onRequestClose={() => setVerFoto(false)}>
+          <Pressable style={estilos.modalFondo} onPress={() => setVerFoto(false)}>
+            <View style={estilos.modalContenedor}>
+              <Image
+                source={{ uri: reporte.linkFoto }}
+                style={estilos.fotoAmpliada}
+                resizeMode="contain"
+              />
+              <Text style={estilos.modalPlaca}>{reporte.placa} — {reporte.fecha}</Text>
+              <TouchableOpacity style={estilos.modalCerrar} onPress={() => setVerFoto(false)}>
+                <Text style={estilos.modalCerrarTexto}>✕ Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Modal>
       ) : null}
     </View>
   );
@@ -89,12 +123,39 @@ const estilos = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 10,
   },
-  placaContenedor: {},
+  placaContenedor: { flex: 1 },
   placa: { fontSize: 18, fontWeight: '800', color: '#1565C0', letterSpacing: 1 },
   buseta: { fontSize: 12, color: '#9E9E9E', marginTop: 2 },
+  derechaContenedor: { alignItems: 'flex-end', gap: 8 },
   fechaContenedor: { alignItems: 'flex-end' },
   fecha: { fontSize: 13, color: '#424242', fontWeight: '600' },
   hora: { fontSize: 12, color: '#9E9E9E' },
+  // Miniatura
+  miniatura: {
+    width: 64,
+    height: 64,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#E0E0E0',
+  },
+  miniaturaOverlay: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderRadius: 6,
+    paddingHorizontal: 3,
+    paddingVertical: 1,
+  },
+  miniaturaIcono: { fontSize: 11 },
+  sinFoto: {
+    width: 64, height: 64, borderRadius: 10,
+    backgroundColor: '#F5F5F5', borderWidth: 1.5,
+    borderColor: '#E0E0E0', borderStyle: 'dashed',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  sinFotoIcono: { fontSize: 22, opacity: 0.4 },
+  // Badge
   badge: {
     flexDirection: 'row', alignItems: 'center',
     alignSelf: 'flex-start', borderWidth: 1,
@@ -111,8 +172,21 @@ const estilos = StyleSheet.create({
   pie: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   responsable: { fontSize: 13, color: '#616161' },
   poblacion: { fontSize: 13, color: '#616161' },
-  linkFoto: {
-    color: '#1565C0', fontSize: 13, fontWeight: '600',
-    marginTop: 8, textDecorationLine: 'underline',
+  // Modal foto ampliada
+  modalFondo: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center', alignItems: 'center',
   },
+  modalContenedor: {
+    width: '90%', alignItems: 'center',
+    backgroundColor: '#1A1A2E', borderRadius: 20,
+    padding: 16, gap: 12,
+  },
+  fotoAmpliada: { width: '100%', height: 320, borderRadius: 12 },
+  modalPlaca: { color: '#90CAF9', fontSize: 14, fontWeight: '700' },
+  modalCerrar: {
+    backgroundColor: '#1565C0', borderRadius: 10,
+    paddingVertical: 10, paddingHorizontal: 28,
+  },
+  modalCerrarTexto: { color: '#FFF', fontWeight: '700', fontSize: 15 },
 });
