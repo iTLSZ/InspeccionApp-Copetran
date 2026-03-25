@@ -101,18 +101,24 @@ export function ReporteCard({ reporte }) {
               )}
             </View>
 
-            {/* Descripción */}
-            <Text style={estilos.descripcion} numberOfLines={2}>
-              {reporte.descripcion}
-            </Text>
-
             <View style={estilos.divider} />
-            <Text style={estilos.responsable} numberOfLines={1}>
-              👤 {reporte.responsable}
-            </Text>
-            {reporte.poblacion ? (
-              <Text style={estilos.poblacion} numberOfLines={1}>📍 {reporte.poblacion}</Text>
-            ) : null}
+
+            {/* Responsable y Población en Grande */}
+            <View style={estilos.responsableContenedor}>
+              <Text style={estilos.responsableDestacado} numberOfLines={1}>
+                👤 {reporte.responsable}
+              </Text>
+              {reporte.poblacion ? (
+                <Text style={estilos.poblacionDestacada} numberOfLines={1}>📍 {reporte.poblacion}</Text>
+              ) : null}
+            </View>
+
+            {/* Observación abajo */}
+            <View style={estilos.observacionContenedor}>
+              <Text style={estilos.observacionTexto} numberOfLines={3}>
+                📝 {reporte.descripcion}
+              </Text>
+            </View>
           </View>
         </TouchableOpacity>
       </Animated.View>
@@ -180,7 +186,7 @@ const estilos = StyleSheet.create({
   placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
   tiempoCaja: { alignItems: 'flex-end' },
   horaDestacada: { fontSize: 17, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
-  fechaDestacada: { fontSize: 11, color: '#64748B', fontWeight: '700', marginTop: 2 },
+  fechaDestacada: { fontSize: 13, color: '#475569', fontWeight: '800', marginTop: 2 },
   busetaBadge: {
     backgroundColor: '#F1F5F9', borderRadius: 8,
     paddingHorizontal: 6, paddingVertical: 2,
@@ -198,14 +204,14 @@ const estilos = StyleSheet.create({
   },
   prelTexto: { color: '#FFF', fontSize: 9, fontWeight: '900' },
 
-  descripcion: { fontSize: 12, color: '#64748B', lineHeight: 17 },
-
-  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 2 },
-  pie: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  fecha: { fontSize: 11, color: '#475569', fontWeight: '600' },
-  hora:  { fontSize: 11, color: '#94A3B8' },
-  responsable: { fontSize: 11, color: '#64748B' },
-  poblacion:   { fontSize: 11, color: '#94A3B8' },
+  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 6 },
+  
+  responsableContenedor: { gap: 2 },
+  responsableDestacado: { fontSize: 15, fontWeight: '900', color: '#1E293B' },
+  poblacionDestacada: { fontSize: 14, fontWeight: '700', color: '#64748B' },
+  
+  observacionContenedor: { backgroundColor: '#F8FAFC', padding: 8, borderRadius: 8, marginTop: 4 },
+  observacionTexto: { fontSize: 12, color: '#475569', lineHeight: 18, fontStyle: 'italic' },
 
   // ── Modal ──
   modalFondo: {
