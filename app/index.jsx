@@ -164,7 +164,7 @@ export default function Inicio() {
         </View>
         <TouchableOpacity onPress={onRefresh} style={estilos.btnRefresh} activeOpacity={0.7}>
           <Animated.View style={{ transform: [{ rotate: spin }] }}>
-            <Text style={{ fontSize: 13 }}>🔄</Text>
+            <MaterialIcons name="refresh" size={16} color="#4338CA" />
           </Animated.View>
           <Text style={estilos.btnRefreshTexto}>Actualizar</Text>
         </TouchableOpacity>
