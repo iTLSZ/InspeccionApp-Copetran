@@ -1,0 +1,48 @@
+name: Deploy PWA to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Expo web app
+        run: npx expo export -p web --output-dir docs
+        env:
+          EXPO_PUBLIC_BASE_PATH: /InspeccionApp-Copetran
+          EXPO_PUBLIC_APPS_SCRIPT_URL: ${{ secrets.EXPO_PUBLIC_APPS_SCRIPT_URL }}
+
+      - name: Copy PWA assets
+        run: |
+          cp public/ICON.png docs/ICON.png
+          cp public/manifest.json docs/manifest.json
+          cp public/service-worker.js docs/service-worker.js
+          touch docs/.nojekyll
+
+      - name: Commit and push built docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git diff --cached --quiet || git commit -m "deploy: produccion PWA [skip ci]"
+          git push origin main

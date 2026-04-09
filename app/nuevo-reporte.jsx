@@ -11,6 +11,8 @@ import { FormField } from '../components/FormField';
 import { PoblacionPicker } from '../components/PoblacionPicker';
 import { ComponentePicker } from '../components/ComponentePicker';
 import { PhotoPicker } from '../components/PhotoPicker';
+import { VehiculoParquePicker } from '../components/VehiculoParquePicker';
+import { ColaboradorPicker } from '../components/ColaboradorPicker';
 import { useForm } from '../hooks/useForm';
 import { appendRow } from '../services/googleSheets';
 import { saveLocal } from '../services/offline';
@@ -115,6 +117,7 @@ export default function NuevoReporte({ onGuardado }) {
         contentContainerStyle={estilos.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
       >
         {/* ── VEHÍCULO ── */}
         <View style={estilos.seccionCard}>
@@ -140,14 +143,21 @@ export default function NuevoReporte({ onGuardado }) {
 
           <View style={estilos.fila2col}>
             <View style={{ flex: 1, marginRight: 8 }}>
-              <FormField label="N° Buseta" valor={campos.numeroBuseta}
-                onChange={(v) => setcampo('numeroBuseta', v.replace(/\D/g, ''))}
-                keyboardType="numeric" placeholder="001" />
+              <VehiculoParquePicker
+                key={`veh-${campos.fecha}-${campos.hora}`}
+                placa={campos.placa}
+                numeroInterno={campos.numeroBuseta}
+                onSeleccionar={(placaVal, interno) => {
+                  setcampo('placa', placaVal);
+                  setcampo('numeroBuseta', String(interno));
+                }}
+                onCambioNumeroManual={(soloDigitos) => setcampo('numeroBuseta', soloDigitos)}
+              />
             </View>
             <View style={{ flex: 1, marginLeft: 8 }}>
               <FormField label="Placa" valor={campos.placa}
                 onChange={(v) => setcampo('placa', v.toUpperCase())}
-                error={errores.placa} obligatorio autoCapitalize="characters" placeholder="ABC123" />
+                error={errores.placa} obligatorio autoCapitalize="characters" placeholder="Se llena al elegir buseta" />
             </View>
           </View>
         </View>
@@ -205,9 +215,13 @@ export default function NuevoReporte({ onGuardado }) {
             <Text style={estilos.seccionTitulo}>Responsable</Text>
           </View>
 
-          <FormField label="Conductor / Responsable" valor={campos.responsable}
-            onChange={(v) => setcampo('responsable', v)} error={errores.responsable}
-            obligatorio placeholder="Nombre completo" autoCapitalize="words" />
+          <ColaboradorPicker
+            key={`col-${campos.fecha}-${campos.hora}`}
+            valor={campos.responsable}
+            onSeleccionar={(nombre) => setcampo('responsable', nombre)}
+            error={errores.responsable}
+            obligatorio
+          />
 
           <FormField label="Observaciones" valor={campos.observaciones}
             onChange={(v) => setcampo('observaciones', v)}
