@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "dev": "expo start -c --web",
-    "deploy": "set EXPO_PUBLIC_BASE_PATH=/InspeccionApp-Copetran&& expo export -p web --output-dir docs && copy public\\ICON.png docs\\ICON.png && copy public\\manifest.json docs\\manifest.json && copy public\\service-worker.js docs\\service-worker.js && type nul > docs\\.nojekyll && git add docs && git commit -m \"deploy: produccion PWA\" && git push origin main",
+    "deploy": "cross-env EXPO_PUBLIC_BASE_PATH=/InspeccionApp-Copetran expo export -p web --output-dir docs && node scripts/copy-pwa-assets.mjs && git add docs && git commit -m \"deploy: produccion PWA\" && git push origin main",
     "parse-vehiculos": "node scripts/parse-vehiculos-parque.mjs",
     "parse-colaboradores": "node scripts/parse-colaboradores-nombres.mjs"
   },
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
+    "cross-env": "^7.0.3",
     "gh-pages": "^6.3.0"
   }
 }
