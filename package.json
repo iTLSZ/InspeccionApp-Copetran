@@ -9,7 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "dev": "expo start -c --web",
-    "deploy": "expo export -p web --output-dir docs && copy public\\ICON.png docs\\ICON.png && copy public\\manifest.json docs\\manifest.json && copy public\\service-worker.js docs\\service-worker.js && type nul > docs\\.nojekyll && git add docs && git commit -m \"deploy: produccion PWA\" && git push origin main",
+    "deploy": "set EXPO_PUBLIC_BASE_PATH=/InspeccionApp-Copetran&& expo export -p web --output-dir docs && copy public\\ICON.png docs\\ICON.png && copy public\\manifest.json docs\\manifest.json && copy public\\service-worker.js docs\\service-worker.js && type nul > docs\\.nojekyll && git add docs && git commit -m \"deploy: produccion PWA\" && git push origin main",
     "parse-vehiculos": "node scripts/parse-vehiculos-parque.mjs",
     "parse-colaboradores": "node scripts/parse-colaboradores-nombres.mjs"
   },
@@ -24,10 +24,12 @@
     "expo-file-system": "~17.0.0",
     "expo-image-picker": "~15.1.0",
     "expo-router": "~3.5.0",
+    "expo-status-bar": "~1.12.1",
     "expo-vector-icons": "^10.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.0",
+    "react-native-safe-area-context": "4.10.5",
     "react-native-web": "~0.19.10"
   },
   "devDependencies": {
