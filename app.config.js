@@ -7,7 +7,7 @@ module.exports = {
     slug: 'inspeccion-app',
     version: '1.0.0',
     orientation: 'portrait',
-    icon: './public/ICON.png',
+    icon: './public/logoouser.png',
     splash: { backgroundColor: '#1565C0' },
     scheme: 'inspeccionapp',
     plugins: [
@@ -25,7 +25,7 @@ module.exports = {
       NOMBRE_EMPRESA: process.env.NOMBRE_EMPRESA || 'InspeccionApp Copetran',
     },
     android: {
-      adaptiveIcon: { foregroundImage: './public/ICON.png', backgroundColor: '#1565C0' },
+      adaptiveIcon: { foregroundImage: './public/logoouser.png', backgroundColor: '#1565C0' },
       package: 'com.copetran.inspeccionapp',
       permissions: ['CAMERA', 'READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE', 'INTERNET', 'ACCESS_NETWORK_STATE'],
     },
@@ -39,7 +39,8 @@ module.exports = {
     web: {
       bundler: 'metro',
       output: 'static',
-      favicon: './public/ICON.png',
+      favicon: './public/logoouser.png',
+      icon: './public/logoouser.png',
       name: 'InspeccionApp Copetran',
       shortName: 'InspeccionApp',
       description: 'Reporte de daños de equipos Copetran',
@@ -50,7 +51,6 @@ module.exports = {
       orientation: 'portrait',
       scope: '/InspeccionApp-Copetran/',
       lang: 'es',
-      icon: './public/ICON.png',
     },
     experiments: {
       baseUrl: '/InspeccionApp-Copetran'

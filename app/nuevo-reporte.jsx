@@ -11,6 +11,7 @@ import { FormField } from '../components/FormField';
 import { PoblacionPicker } from '../components/PoblacionPicker';
 import { ComponentePicker } from '../components/ComponentePicker';
 import { PhotoPicker } from '../components/PhotoPicker';
+import { BusetaPicker } from '../components/BusetaPicker';
 import { useForm } from '../hooks/useForm';
 import { appendRow } from '../services/googleSheets';
 import { saveLocal } from '../services/offline';
@@ -138,18 +139,14 @@ export default function NuevoReporte({ onGuardado }) {
 
           <PoblacionPicker valor={campos.poblacion} onChange={(v) => setcampo('poblacion', v)} />
 
-          <View style={estilos.fila2col}>
-            <View style={{ flex: 1, marginRight: 8 }}>
-              <FormField label="N° Buseta" valor={campos.numeroBuseta}
-                onChange={(v) => setcampo('numeroBuseta', v.replace(/\D/g, ''))}
-                keyboardType="numeric" placeholder="001" />
-            </View>
-            <View style={{ flex: 1, marginLeft: 8 }}>
-              <FormField label="Placa" valor={campos.placa}
-                onChange={(v) => setcampo('placa', v.toUpperCase())}
-                error={errores.placa} obligatorio autoCapitalize="characters" placeholder="ABC123" />
-            </View>
-          </View>
+          <BusetaPicker
+            numeroBuseta={campos.numeroBuseta}
+            placa={campos.placa}
+            onChangeNumero={(v) => setcampo('numeroBuseta', v)}
+            onChangePlaca={(v) => setcampo('placa', v)}
+            errorNumero={errores.numeroBuseta}
+            errorPlaca={errores.placa}
+          />
         </View>
 
         {/* ── FOTO ── */}
