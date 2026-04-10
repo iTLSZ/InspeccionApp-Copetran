@@ -23,6 +23,9 @@ module.exports = {
     extra: {
       EXPO_PUBLIC_APPS_SCRIPT_URL: process.env.EXPO_PUBLIC_APPS_SCRIPT_URL,
       NOMBRE_EMPRESA: process.env.NOMBRE_EMPRESA || 'InspeccionApp Copetran',
+      eas: {
+        projectId: "2bec1d05-2096-4f53-b25e-2bf008673771"
+      }
     },
     android: {
       adaptiveIcon: { foregroundImage: './public/logoouser.png', backgroundColor: '#1565C0' },
