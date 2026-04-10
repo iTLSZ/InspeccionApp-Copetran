@@ -18,7 +18,10 @@
             "android": {
                 "buildType": "apk"
             },
-            "distribution": "internal"
+            "distribution": "internal",
+            "env": {
+                "EXPO_PUBLIC_APPS_SCRIPT_URL": "https://script.google.com/macros/s/AKfycbwNOlCilNEfnBuyAlqVFU6jMIKODofxk6AGpHK5Q7j610qq6ih-1DeDN5JhwOm45DKo/exec"
+            }
         },
         "production": {}
     },
