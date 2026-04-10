@@ -14,3 +14,9 @@ veda
 .env
 .env.*
 !.env.example
+
+# Archivos de datos — no publicar
+public/*.xlsx
+public/*.xls
+docs/*.xlsx
+docs/*.xls

@@ -12,6 +12,7 @@ import { PoblacionPicker } from '../components/PoblacionPicker';
 import { ComponentePicker } from '../components/ComponentePicker';
 import { PhotoPicker } from '../components/PhotoPicker';
 import { BusetaPicker } from '../components/BusetaPicker';
+import { ResponsablePicker } from '../components/ResponsablePicker';
 import { useForm } from '../hooks/useForm';
 import { appendRow } from '../services/googleSheets';
 import { saveLocal } from '../services/offline';
@@ -202,9 +203,11 @@ export default function NuevoReporte({ onGuardado }) {
             <Text style={estilos.seccionTitulo}>Responsable</Text>
           </View>
 
-          <FormField label="Conductor / Responsable" valor={campos.responsable}
-            onChange={(v) => setcampo('responsable', v)} error={errores.responsable}
-            obligatorio placeholder="Nombre completo" autoCapitalize="words" />
+          <ResponsablePicker
+            responsable={campos.responsable}
+            onChangeResponsable={(v) => setcampo('responsable', v)}
+            errorResponsable={errores.responsable}
+          />
 
           <FormField label="Observaciones" valor={campos.observaciones}
             onChange={(v) => setcampo('observaciones', v)}
