@@ -1,4 +1,4 @@
-﻿// data/responsables.js
+// data/responsables.js
 // Base de datos Colaboradores/Responsables
 // Generado automaticamente
 
@@ -470,8 +470,7 @@ export const RESPONSABLES = [
   { id: '1118819194', nombre: "TORRES ARAGON CESAR MIGUEL ", cargo: "TECNICO TIPO B" },
   { id: '1065637728', nombre: "LUIS MIGUEL MEDINA RODRIGUEZ", cargo: "COORDINADOR DE POBLACION" },
   { id: '1067593806', nombre: "CHINCHIA VARGAS OSIRIS MARIA", cargo: "APRENDIZ SENA" },
-  { id: '1118875467
-', nombre: "GUERRA RODRIGUEZ OSNAIDER JOSE ", cargo: "APRENDIZ SENA MTTO" },
+  { id: '1118875467', nombre: "GUERRA RODRIGUEZ OSNAIDER JOSE ", cargo: "APRENDIZ SENA MTTO" },
   { id: '1121330653', nombre: "LUIS ANGEL PACHECO RUMBO", cargo: "PRACTICANTE UNIVERSITARIO" },
   { id: '1192772353', nombre: "SIERRA RODRÍGUEZ SANTIAGO ANDRÉS", cargo: "AUXILIAR SIO" },
   { id: '1006790903', nombre: "BERARDINELLI SOTO JOSE JAIME", cargo: "CONDUCTOR DE POBLACION" },
