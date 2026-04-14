@@ -5,10 +5,10 @@ module.exports = {
   expo: {
     name: 'InspeccionApp',
     slug: 'inspeccion-app',
-    version: '1.0.0',
+    version: '1.1.0',
     orientation: 'portrait',
     icon: './public/logoouser.png',
-    splash: { backgroundColor: '#1565C0' },
+    splash: { backgroundColor: '#09090B' },
     scheme: 'inspeccionapp',
     plugins: [
       'expo-router',
