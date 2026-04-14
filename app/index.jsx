@@ -4,14 +4,17 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View, Text, FlatList, StyleSheet, TouchableOpacity,
-  RefreshControl, ActivityIndicator, Platform, Alert, Image, Animated, Easing
+  RefreshControl, ActivityIndicator, Platform, Alert, Image, Animated, Easing, Dimensions
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { BlurView } from 'expo-blur';
 import { ReporteCard } from '../components/ReporteCard';
 import { getRows } from '../services/googleSheets';
 import { useSync } from '../hooks/useSync';
 import { NOMBRE_EMPRESA } from './config';
+
+const { width } = Dimensions.get('window');
 
 export default function Inicio() {
   const router = useRouter();
@@ -28,12 +31,20 @@ export default function Inicio() {
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const headerSlide = useRef(new Animated.Value(-20)).current;
   const badgePulse = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(headerOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(headerOpacity, { toValue: 1, duration: 800, useNativeDriver: true }),
       Animated.spring(headerSlide, { toValue: 0, friction: 8, tension: 40, useNativeDriver: true }),
     ]).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, { toValue: 1, duration: 4000, useNativeDriver: true }),
+        Animated.timing(glowAnim, { toValue: 0, duration: 4000, useNativeDriver: true }),
+      ])
+    ).start();
 
     // Lógica para capturar prompt de instalación PWA en navegadores compatibles
     if (Platform.OS === 'web') {
@@ -130,16 +141,18 @@ export default function Inicio() {
 
   return (
     <View style={estilos.contenedor}>
+      {/* ── BACKGROUND GLOW EFFECT ── */}
+      <Animated.View style={[estilos.bgGlow1, { opacity: glowAnim }]} />
+      <Animated.View style={[estilos.bgGlow2, { 
+        opacity: glowAnim.interpolate({ inputRange:[0,1], outputRange:[0.6, 0.2] }) 
+      }]} />
 
-      {/* ── HEADER CENTRADO ─────────────────────────── */}
-      <View style={estilos.header}>
-        <View style={estilos.headerCirculo1} />
-        <View style={estilos.headerCirculo2} />
-
-        <Animated.View style={[estilos.headerInner, {
+      {/* ── HEADER PREMIUM GLASSMORPHISM ───────────────── */}
+      <Animated.View style={[estilos.headerContainer, {
           opacity: headerOpacity,
           transform: [{ translateY: headerSlide }]
-        }]}>
+      }]}>
+        <BlurView intensity={Platform.OS === 'ios' ? 80 : 100} tint="dark" style={estilos.headerBlur}>
           <View style={estilos.logoFila}>
             <View style={estilos.logoWrapper}>
               <Image source={require('../public/logoouser.png')} style={estilos.logo} resizeMode="contain" />
@@ -153,39 +166,42 @@ export default function Inicio() {
               <Text style={estilos.statusTexto}>{conectado ? 'Online' : 'Offline'}</Text>
             </View>
           </View>
-        </Animated.View>
-      </View>
+        </BlurView>
+      </Animated.View>
 
       {/* ── SECCIÓN HISTORIAL ────────────────────────── */}
       <View style={estilos.seccionHeader}>
         <View>
           <Text style={estilos.seccionTitulo}>Últimos reportes</Text>
-          <Text style={estilos.seccionSub}>Toca una tarjeta para ver la foto</Text>
+          <Text style={estilos.seccionSub}>Monitorea la flota en tiempo real</Text>
         </View>
         <TouchableOpacity onPress={onRefresh} style={estilos.btnRefresh} activeOpacity={0.7}>
           <Animated.View style={{ transform: [{ rotate: spin }] }}>
-            <MaterialIcons name="refresh" size={16} color="#4338CA" />
+            <MaterialIcons name="refresh" size={20} color="#A78BFA" />
           </Animated.View>
-          <Text style={estilos.btnRefreshTexto}>Actualizar</Text>
         </TouchableOpacity>
       </View>
 
       {/* Botón Instalar App PWA */}
       {deferredPrompt && (
-        <View style={{ marginHorizontal: 16, marginBottom: 8 }}>
+        <View style={{ marginHorizontal: 20, marginBottom: 12 }}>
           <TouchableOpacity style={estilos.btnInstalarPWA} onPress={handleInstallPWA} activeOpacity={0.85}>
-            <Text style={{ fontSize: 16 }}>📲</Text>
-            <Text style={estilos.btnInstalarTexto}>Instalar aplicación en el dispositivo</Text>
+            <BlurView intensity={80} tint="light" style={estilos.blurBtn}>
+              <Text style={{ fontSize: 18 }}>📲</Text>
+              <Text style={estilos.btnInstalarTexto}>Instalar App en el dispositivo</Text>
+            </BlurView>
           </TouchableOpacity>
         </View>
       )}
 
       {/* Botón de actualizar (nuevos registros) */}
       {nuevoDisponible && (
-        <Animated.View style={{ transform: [{ scale: badgePulse }], marginHorizontal: 16, marginBottom: 8 }}>
+        <Animated.View style={{ transform: [{ scale: badgePulse }], marginHorizontal: 20, marginBottom: 12 }}>
           <TouchableOpacity style={estilos.nuevoBadge} onPress={cargarNuevos} activeOpacity={0.85}>
-            <MaterialIcons name="sync" size={18} color="#FFF" />
-            <Text style={estilos.nuevoBadgeTexto}>Actualizar — Hay nuevos registros</Text>
+             <BlurView intensity={80} tint="dark" style={estilos.blurBtnBadge}>
+              <MaterialIcons name="sync" size={18} color="#FFF" />
+              <Text style={estilos.nuevoBadgeTexto}>Nuevos registros disponibles</Text>
+             </BlurView>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -193,8 +209,8 @@ export default function Inicio() {
       {/* ── LISTA ────────────────────────────────────── */}
       {cargando && reportes.length === 0 ? (
         <View style={estilos.cargando}>
-          <ActivityIndicator size="large" color="#6366F1" />
-          <Text style={estilos.cargandoTexto}>Cargando reportes...</Text>
+          <ActivityIndicator size="large" color="#818CF8" />
+          <Text style={estilos.cargandoTexto}>Sincronizando reportes...</Text>
         </View>
       ) : (
         <FlatList
@@ -202,23 +218,25 @@ export default function Inicio() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ReporteCard reporte={item} />}
           contentContainerStyle={estilos.lista}
-          refreshControl={<RefreshControl refreshing={refrescando} onRefresh={onRefresh} tintColor="#6366F1" />}
+          refreshControl={<RefreshControl refreshing={refrescando} onRefresh={onRefresh} tintColor="#818CF8" colors={['#818CF8']} />}
           ListEmptyComponent={
             <View style={estilos.vacio}>
-              <Text style={estilos.vacioIcono}>📋</Text>
+              <View style={estilos.vacioIconWrapper}>
+                <Text style={estilos.vacioIcono}>📋</Text>
+              </View>
               <Text style={estilos.vacioTexto}>Sin reportes aún</Text>
-              <Text style={estilos.vacioSub}>Crea el primero tocando el botón</Text>
+              <Text style={estilos.vacioSub}>Crea el primer reporte tocando el botón inferior</Text>
             </View>
           }
           showsVerticalScrollIndicator={false}
         />
       )}
 
-      {/* ── FAB ──────────────────────────────────────── */}
+      {/* ── FAB CON ESTILO PREMIUM ──────────────────────── */}
       <Animated.View style={[estilos.fabWrapper, { transform: [{ scale: scaleValue }] }]}>
-        <TouchableOpacity style={estilos.fab} onPress={handleNuevoReporte} activeOpacity={0.85}>
+        <TouchableOpacity style={estilos.fab} onPress={handleNuevoReporte} activeOpacity={0.9}>
           <View style={estilos.fabIconCaja}>
-            <Text style={estilos.fabIcono}>+</Text>
+            <MaterialIcons name="add" size={24} color="#FFF" />
           </View>
           <Text style={estilos.fabTexto}>Nuevo Reporte</Text>
         </TouchableOpacity>
@@ -228,104 +246,113 @@ export default function Inicio() {
 }
 
 const estilos = StyleSheet.create({
-  contenedor: { flex: 1, backgroundColor: '#F8FAFC' },
+  contenedor: { flex: 1, backgroundColor: '#09090B' },
 
-  // ── Header horizontal ──
-  header: {
-    backgroundColor: '#4338CA',
-    paddingTop: Platform.OS === 'ios' ? 54 : 32,
-    paddingBottom: 24,
+  bgGlow1: {
+    position: 'absolute', top: -100, left: -50,
+    width: width * 0.8, height: width * 0.8,
+    borderRadius: 999, backgroundColor: '#4C1D95',
+    opacity: 0.3, transform: [{ scale: 1.2 }]
+  },
+  bgGlow2: {
+    position: 'absolute', top: 50, right: -100,
+    width: width * 0.7, height: width * 0.7,
+    borderRadius: 999, backgroundColor: '#0F766E',
+    opacity: 0.2, transform: [{ scale: 1.5 }]
+  },
+
+  // ── Header Premium ──
+  headerContainer: {
+    paddingTop: Platform.OS === 'ios' ? 60 : 50,
     paddingHorizontal: 20,
-    overflow: 'hidden',
+    paddingBottom: 10,
+    zIndex: 10,
   },
-  headerCirculo1: {
-    position: 'absolute', width: 200, height: 200,
-    borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.05)', top: -60, right: -40,
+  headerBlur: {
+    borderRadius: 24, overflow: 'hidden',
+    padding: 16, borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(24, 24, 27, 0.4)',
   },
-  headerCirculo2: {
-    position: 'absolute', width: 140, height: 140,
-    borderRadius: 70, backgroundColor: 'rgba(255,255,255,0.07)', top: 20, right: 80,
-  },
-  headerInner: { gap: 16 },
-  logoFila: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  logoFila: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   logoWrapper: {
-    width: 52, height: 52, borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 50, height: 50, borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.08)',
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
   },
-  logo: { width: 40, height: 40 },
+  logo: { width: 36, height: 36 },
   headerTextos: { flex: 1 },
-  headerEmpresa: { color: '#FFFFFF', fontSize: 16, fontWeight: '800' },
-  headerSub: { color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 2 },
+  headerEmpresa: { color: '#FAFAFA', fontSize: 17, fontWeight: '800', letterSpacing: 0.5 },
+  headerSub: { color: '#A1A1AA', fontSize: 12, marginTop: 3, fontWeight: '500' },
   statusPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    borderRadius: 20, paddingHorizontal: 10, paddingVertical: 6,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
   },
   statusOnline: { backgroundColor: 'rgba(74,222,128,0.15)' },
   statusOffline: { backgroundColor: 'rgba(248,113,113,0.15)' },
-  statusDot: { width: 7, height: 7, borderRadius: 4 },
-  statusTexto: { color: '#FFF', fontSize: 11, fontWeight: '700' },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusTexto: { color: '#E4E4E7', fontSize: 12, fontWeight: '700' },
 
   // ── Sección ──
   seccionHeader: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10,
+    flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
+    paddingHorizontal: 22, paddingTop: 16, paddingBottom: 16,
   },
-  seccionTitulo: { fontSize: 18, fontWeight: '900', color: '#1E293B' },
-  seccionSub: { fontSize: 12, color: '#94A3B8', marginTop: 2 },
+  seccionTitulo: { fontSize: 22, fontWeight: '900', color: '#FAFAFA', letterSpacing: 0.5 },
+  seccionSub: { fontSize: 13, color: '#A1A1AA', marginTop: 4 },
   btnRefresh: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#EEF2FF', borderRadius: 14,
-    paddingVertical: 6, paddingHorizontal: 12,
-    borderWidth: 1, borderColor: '#C7D2FE',
+    backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 14,
+    padding: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
   },
-  btnRefreshTexto: { fontSize: 12, fontWeight: '800', color: '#4338CA' },
 
-  btnInstalarPWA: {
-    backgroundColor: '#10B981', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    shadowColor: '#10B981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 6, elevation: 3,
+  btnInstalarPWA: { borderRadius: 16, overflow: 'hidden' },
+  blurBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12,
+    paddingVertical: 14, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.8)'
   },
-  btnInstalarTexto: { color: '#FFF', fontWeight: '800', fontSize: 14 },
+  btnInstalarTexto: { color: '#0F172A', fontWeight: '800', fontSize: 15 },
 
-  // Badge nuevo reporte
-  nuevoBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#6366F1', borderRadius: 12,
-    paddingVertical: 10, paddingHorizontal: 16,
-    shadowColor: '#6366F1', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4, shadowRadius: 8, elevation: 6,
+  nuevoBadge: { borderRadius: 16, overflow: 'hidden' },
+  blurBtnBadge: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    paddingVertical: 14, paddingHorizontal: 16, backgroundColor: 'rgba(99, 102, 241, 0.3)',
+    borderWidth: 1, borderColor: 'rgba(99, 102, 241, 0.4)', borderRadius: 16,
   },
-  nuevoBadgeTexto: { color: '#FFF', fontSize: 13, fontWeight: '800', flex: 1 },
+  nuevoBadgeTexto: { color: '#FFF', fontSize: 14, fontWeight: '800' },
 
   // ── Lista ──
-  lista: { paddingHorizontal: 16, paddingBottom: 110 },
-  cargando: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14 },
-  cargandoTexto: { color: '#94A3B8', fontSize: 14, fontWeight: '500' },
-  vacio: { alignItems: 'center', paddingTop: 80, gap: 10 },
-  vacioIcono: { fontSize: 56 },
-  vacioTexto: { fontSize: 18, fontWeight: '800', color: '#334155' },
-  vacioSub: { fontSize: 14, color: '#94A3B8' },
+  lista: { paddingHorizontal: 20, paddingBottom: 120, paddingTop: 6 },
+  cargando: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
+  cargandoTexto: { color: '#A1A1AA', fontSize: 15, fontWeight: '600' },
+  
+  vacio: { alignItems: 'center', paddingTop: 80, gap: 16 },
+  vacioIconWrapper: {
+    width: 100, height: 100, borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
+  },
+  vacioIcono: { fontSize: 48 },
+  vacioTexto: { fontSize: 20, fontWeight: '800', color: '#FAFAFA' },
+  vacioSub: { fontSize: 14, color: '#A1A1AA', textAlign: 'center', paddingHorizontal: 40 },
 
   // ── FAB ──
   fabWrapper: {
-    position: 'absolute', bottom: 24, left: 20, right: 20,
-    shadowColor: '#4338CA', shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4, shadowRadius: 16, elevation: 10,
-    borderRadius: 18,
+    position: 'absolute', bottom: 30, left: 24, right: 24,
+    shadowColor: '#818CF8', shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3, shadowRadius: 20, elevation: 12,
   },
   fab: {
-    backgroundColor: '#4338CA', borderRadius: 18,
+    backgroundColor: '#4F46E5', borderRadius: 20,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 16, gap: 10,
+    paddingVertical: 16, gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
   },
   fabIconCaja: {
-    width: 28, height: 28, borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 32, height: 32, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.25)',
     alignItems: 'center', justifyContent: 'center',
   },
-  fabIcono: { color: '#FFF', fontSize: 20, fontWeight: '300', lineHeight: 24 },
-  fabTexto: { color: '#FFF', fontSize: 16, fontWeight: '800' },
+  fabTexto: { color: '#FFF', fontSize: 17, fontWeight: '800', letterSpacing: 0.5 },
 });

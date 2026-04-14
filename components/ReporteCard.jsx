@@ -4,8 +4,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Image,
-  Modal, Pressable, Animated,
+  Modal, Pressable, Animated, Platform
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 
 const COMPONENTES = {
   'DEFENSAS':           { color: '#3B82F6', emoji: '🛡️' },
@@ -44,85 +45,84 @@ export function ReporteCard({ reporte }) {
   }
 
   return (
+  return (
     <>
       <Animated.View style={[estilos.card, { transform: [{ scale: scaleAnim }] }]}>
         <TouchableOpacity
-          activeOpacity={1} onPressIn={onIn} onPressOut={onOut}
+          activeOpacity={0.9} onPressIn={onIn} onPressOut={onOut}
           onPress={reporte.linkFoto ? () => setVerFoto(true) : null}
-          style={estilos.inner}
         >
-          {/* ── FOTO IZQUIERDA ── */}
-          <View style={estilos.fotoContenedor}>
-            {reporte.linkFoto ? (
-              <>
-                <Image source={{ uri: reporte.linkFoto }} style={estilos.foto} resizeMode="cover" />
-                <View style={estilos.fotoOverlay}>
-                  <Text style={estilos.fotoLupa}>🔍</Text>
+          <BlurView intensity={Platform.OS === 'ios' ? 40 : 100} tint="dark" style={estilos.inner}>
+            {/* ── FOTO IZQUIERDA ── */}
+            <View style={estilos.fotoContenedor}>
+              {reporte.linkFoto ? (
+                <>
+                  <Image source={{ uri: reporte.linkFoto }} style={estilos.foto} resizeMode="cover" />
+                  <BlurView intensity={50} tint="dark" style={estilos.fotoOverlay}>
+                    <Text style={estilos.fotoLupa}>🔍</Text>
+                  </BlurView>
+                </>
+              ) : (
+                <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '1A' }]}>
+                  <Text style={{ fontSize: 36 }}>{info.emoji}</Text>
+                  <Text style={estilos.placeholderTexto}>Sin foto</Text>
                 </View>
-              </>
-            ) : (
-              <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '1A' }]}>
-                <Text style={{ fontSize: 32 }}>{info.emoji}</Text>
-                <Text style={estilos.placeholderTexto}>Sin foto</Text>
-              </View>
-            )}
-            <View style={[estilos.barraColor, { backgroundColor: info.color }]} />
-          </View>
+              )}
+              <View style={[estilos.barraColor, { backgroundColor: info.color }]} />
+            </View>
 
-          {/* ── CONTENIDO DERECHA ── */}
-          <View style={estilos.contenido}>
-
-            {/* ── 2 COLUMNAS SUPERIORES ── */}
-            <View style={estilos.topRow}>
+            {/* ── CONTENIDO DERECHA ── */}
+            <View style={estilos.contenido}>
               
-              {/* Col Izquierda: Placa + Componente */}
-              <View style={estilos.colIzquierda}>
-                <View style={estilos.placaFila}>
-                  <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
-                  {reporte.numeroBuseta ? (
-                    <View style={estilos.busetaBadge}>
-                      <Text style={estilos.busetaTexto}>#{reporte.numeroBuseta}</Text>
-                    </View>
-                  ) : null}
+              {/* ── 2 COLUMNAS SUPERIORES ── */}
+              <View style={estilos.topRow}>
+                {/* Col Izquierda: Placa + Componente */}
+                <View style={estilos.colIzquierda}>
+                  <View style={estilos.placaFila}>
+                    <Text style={estilos.placa}>{reporte.placa || '—'}</Text>
+                    {reporte.numeroBuseta ? (
+                      <View style={estilos.busetaBadge}>
+                        <Text style={estilos.busetaTexto}>#{reporte.numeroBuseta}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  {/* Componente con emoji + color */}
+                  <View style={[estilos.componenteBadge, { backgroundColor: info.color + '20', borderColor: info.color + '40', borderWidth: 1 }]}>
+                    <Text style={{ fontSize: 13 }}>{info.emoji}</Text>
+                    <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
+                      {reporte.componente || 'Sin componente'}
+                    </Text>
+                    {reporte.preliminar && (
+                      <View style={estilos.prelBadge}>
+                        <Text style={estilos.prelTexto}>PREV</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={estilos.poblacionIzquierda} numberOfLines={1}>
+                    👤 {reporte.responsable}
+                    {reporte.poblacion ? ` • 📍 ${reporte.poblacion}` : ''}
+                  </Text>
                 </View>
 
-                {/* Componente con emoji + color */}
-                <View style={[estilos.componenteBadge, { backgroundColor: info.color + '18' }]}>
-                  <Text style={{ fontSize: 13 }}>{info.emoji}</Text>
-                  <Text style={[estilos.componenteTexto, { color: info.color }]} numberOfLines={1}>
-                    {reporte.componente || 'Sin componente'}
-                  </Text>
-                  {reporte.preliminar && (
-                    <View style={estilos.prelBadge}>
-                      <Text style={estilos.prelTexto}>PREV</Text>
-                    </View>
-                  )}
+                {/* Col Derecha: Tiempo + Responsable + Población */}
+                <View style={estilos.colDerecha}>
+                  <Text style={estilos.horaDestacada}>{reporte.hora ? reporte.hora.toUpperCase() : ''}</Text>
+                  <View style={estilos.separadorHoraFecha} />
+                  <Text style={estilos.fechaDestacada}>{fechaMostrar}</Text>
                 </View>
-                <Text style={estilos.poblacionIzquierda} numberOfLines={1}>
-                  👤 {reporte.responsable}
-                  {reporte.poblacion ? ` | 📍 ${reporte.poblacion}` : ''}
+              </View>
+
+              <View style={estilos.divider} />
+
+              {/* Observación abajo */}
+              <View style={estilos.observacionContenedor}>
+                <Text style={estilos.observacionTexto} numberOfLines={3}>
+                  📝 {reporte.descripcion}
                 </Text>
               </View>
-
-              {/* Col Derecha: Tiempo + Responsable + Población */}
-              <View style={estilos.colDerecha}>
-                <Text style={estilos.horaDestacada}>{reporte.hora ? reporte.hora.toUpperCase() : ''}</Text>
-                <View style={estilos.separadorHoraFecha} />
-                <Text style={estilos.fechaDestacada}>{fechaMostrar}</Text>
-                
-                {/* Responsable se movió a Col Izquierda con Población */}
-              </View>
             </View>
-
-            <View style={estilos.divider} />
-
-            {/* Observación abajo */}
-            <View style={estilos.observacionContenedor}>
-              <Text style={estilos.observacionTexto} numberOfLines={3}>
-                📝 {reporte.descripcion}
-              </Text>
-            </View>
-          </View>
+          </BlurView>
         </TouchableOpacity>
       </Animated.View>
 
@@ -130,16 +130,16 @@ export function ReporteCard({ reporte }) {
       {reporte.linkFoto && (
         <Modal visible={verFoto} transparent animationType="fade" onRequestClose={() => setVerFoto(false)}>
           <Pressable style={estilos.modalFondo} onPress={() => setVerFoto(false)}>
-            <View style={estilos.modalCaja}>
+            <BlurView intensity={100} tint="dark" style={estilos.modalBlurBox}>
               <Image source={{ uri: reporte.linkFoto }} style={estilos.fotoAmpliada} resizeMode="contain" />
               <View style={estilos.modalInfo}>
                 <Text style={estilos.modalPlaca}>{reporte.placa}</Text>
-                <Text style={estilos.modalSub}>{reporte.componente}  ·  {fechaMostrar} {reporte.hora ? reporte.hora.toUpperCase() : ''}</Text>
+                <Text style={estilos.modalSub}>{reporte.componente}  •  {fechaMostrar} {reporte.hora ? reporte.hora.toUpperCase() : ''}</Text>
               </View>
               <TouchableOpacity style={estilos.modalCerrar} onPress={() => setVerFoto(false)}>
                 <Text style={estilos.modalCerrarTexto}>✕  Cerrar</Text>
               </TouchableOpacity>
-            </View>
+            </BlurView>
           </Pressable>
         </Modal>
       )}
@@ -149,93 +149,94 @@ export function ReporteCard({ reporte }) {
 
 const estilos = StyleSheet.create({
   card: {
-    marginBottom: 14,
-    borderRadius: 20,
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10,
-    shadowRadius: 14,
-    elevation: 5,
+    marginBottom: 16,
+    borderRadius: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+    backgroundColor: 'rgba(24, 24, 27, 0.4)', // Base en caso de que BlurView no soporte bien Android
   },
   inner: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 22,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#F1F5F9',
-    minHeight: 150,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    minHeight: 155,
   },
 
   // ── Foto izquierda ──
-  fotoContenedor: { width: 110, position: 'relative' },
-  foto: { width: 110, height: '100%', minHeight: 150 },
+  fotoContenedor: { width: 115, position: 'relative' },
+  foto: { width: 115, height: '100%', minHeight: 155 },
   fotoOverlay: {
-    position: 'absolute', bottom: 6, right: 6,
-    backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 8, padding: 4,
+    position: 'absolute', bottom: 8, right: 8,
+    borderRadius: 10, padding: 6, overflow: 'hidden',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)'
   },
-  fotoLupa: { fontSize: 12 },
+  fotoLupa: { fontSize: 13 },
   fotoPlaceholder: {
-    width: 110, minHeight: 150,
-    alignItems: 'center', justifyContent: 'center', gap: 6,
+    width: 115, minHeight: 155,
+    alignItems: 'center', justifyContent: 'center', gap: 8,
   },
-  placeholderTexto: { fontSize: 11, color: '#64748B', fontWeight: '700' },
+  placeholderTexto: { fontSize: 11, color: '#94A3B8', fontWeight: '700' },
   barraColor: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 4 },
 
   // ── Contenido derecha ──
-  contenido: { flex: 1, padding: 12, gap: 5, justifyContent: 'center' },
+  contenido: { flex: 1, padding: 14, gap: 6, justifyContent: 'center' },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  colIzquierda: { flex: 1, paddingRight: 6, gap: 8, alignItems: 'flex-start' },
-  colDerecha: { flexShrink: 1, alignItems: 'center', maxWidth: '45%' },
+  colIzquierda: { flex: 1, paddingRight: 6, gap: 10, alignItems: 'flex-start' },
+  colDerecha: { flexShrink: 1, alignItems: 'flex-end', maxWidth: '40%' },
   
   placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  placa: { fontSize: 20, fontWeight: '900', color: '#1E293B', letterSpacing: 2 },
-  horaDestacada: { fontSize: 16, fontWeight: '900', color: '#4338CA', letterSpacing: 0.5 },
-  separadorHoraFecha: { width: 40, height: 2, backgroundColor: '#CBD5E1', marginVertical: 4, borderRadius: 2 },
-  fechaDestacada: { fontSize: 16, color: '#475569', fontWeight: '800' },
+  placa: { fontSize: 21, fontWeight: '900', color: '#FAFAFA', letterSpacing: 2 },
+  horaDestacada: { fontSize: 14, fontWeight: '800', color: '#A78BFA', letterSpacing: 0.5 },
+  separadorHoraFecha: { width: 30, height: 2, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 6, borderRadius: 2 },
+  fechaDestacada: { fontSize: 13, color: '#94A3B8', fontWeight: '700' },
   busetaBadge: {
-    backgroundColor: '#F1F5F9', borderRadius: 8,
-    paddingHorizontal: 6, paddingVertical: 2,
+    backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 8,
+    paddingHorizontal: 8, paddingVertical: 4,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)'
   },
-  busetaTexto: { fontSize: 11, color: '#64748B', fontWeight: '700' },
+  busetaTexto: { fontSize: 11, color: '#E2E8F0', fontWeight: '700' },
 
   componenteBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    alignSelf: 'flex-start', borderRadius: 10,
-    paddingHorizontal: 8, paddingVertical: 4, maxWidth: '100%',
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    alignSelf: 'flex-start', borderRadius: 12,
+    paddingHorizontal: 10, paddingVertical: 5, maxWidth: '100%',
   },
-  componenteTexto: { fontSize: 12, fontWeight: '800', flexShrink: 1 },
+  componenteTexto: { fontSize: 11, fontWeight: '800', flexShrink: 1 },
   prelBadge: {
-    backgroundColor: '#F97316', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1,
+    backgroundColor: '#F97316', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1, marginLeft: 4
   },
   prelTexto: { color: '#FFF', fontSize: 9, fontWeight: '900' },
 
-  divider: { height: 1, backgroundColor: '#F1F5F9', marginVertical: 4 },
+  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginVertical: 6 },
   
-  responsableContenedorWrapper: { gap: 2, alignItems: 'flex-end', marginTop: 6, width: '100%' },
-  responsableDestacado: { fontSize: 13, fontWeight: '900', color: '#1E293B', textAlign: 'right' },
+  poblacionIzquierda: { fontSize: 12, fontWeight: '600', color: '#94A3B8', marginTop: 2 },
   
-  poblacionIzquierda: { fontSize: 13, fontWeight: '700', color: '#64748B', marginTop: 2 },
-  
-  observacionContenedor: { backgroundColor: '#F8FAFC', padding: 8, borderRadius: 8, marginTop: 4 },
-  observacionTexto: { fontSize: 12, color: '#475569', lineHeight: 18, fontStyle: 'italic' },
+  observacionContenedor: { backgroundColor: 'rgba(0,0,0,0.2)', padding: 10, borderRadius: 10, marginTop: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.03)' },
+  observacionTexto: { fontSize: 12, color: '#E2E8F0', lineHeight: 18, fontStyle: 'italic' },
 
   // ── Modal ──
   modalFondo: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.92)',
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.85)',
     justifyContent: 'center', alignItems: 'center',
   },
-  modalCaja: {
-    width: '92%', backgroundColor: '#0F172A',
-    borderRadius: 24, overflow: 'hidden', alignItems: 'center',
+  modalBlurBox: {
+    width: '90%', borderRadius: 28, overflow: 'hidden', alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(24,24,27,0.7)',
   },
-  fotoAmpliada: { width: '100%', height: 340 },
-  modalInfo: { padding: 16, alignItems: 'center', gap: 4 },
-  modalPlaca: { color: '#E2E8F0', fontSize: 22, fontWeight: '900', letterSpacing: 2 },
-  modalSub:   { color: '#64748B', fontSize: 12 },
+  fotoAmpliada: { width: '100%', height: 380, backgroundColor: '#000' },
+  modalInfo: { padding: 20, alignItems: 'center', gap: 6 },
+  modalPlaca: { color: '#FAFAFA', fontSize: 24, fontWeight: '900', letterSpacing: 2 },
+  modalSub:   { color: '#A1A1AA', fontSize: 14, fontWeight: '500' },
   modalCerrar: {
-    margin: 16, backgroundColor: '#6366F1', borderRadius: 14,
-    paddingVertical: 12, paddingHorizontal: 40,
+    margin: 20, backgroundColor: '#4F46E5', borderRadius: 16,
+    paddingVertical: 14, paddingHorizontal: 40,
+    shadowColor: '#4F46E5', shadowOffset: { width:0, height:4 }, shadowOpacity: 0.4, shadowRadius: 8
   },
-  modalCerrarTexto: { color: '#FFF', fontWeight: '800', fontSize: 15 },
+  modalCerrarTexto: { color: '#FFF', fontWeight: '800', fontSize: 16, letterSpacing: 0.5 },
 });
