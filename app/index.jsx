@@ -4,19 +4,29 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View, Text, FlatList, StyleSheet, TouchableOpacity,
-  RefreshControl, ActivityIndicator, Platform, Alert, Image, Animated, Easing, Dimensions
+  RefreshControl, ActivityIndicator, Platform, Alert, Image,
+  Animated, Easing, Dimensions, PixelRatio, StatusBar
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { BlurView } from 'expo-blur';
+// expo-blur no compatible con web — reemplazado por View
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReporteCard } from '../components/ReporteCard';
 import { getRows } from '../services/googleSheets';
 import { useSync } from '../hooks/useSync';
 import { NOMBRE_EMPRESA } from './config';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+// Escala base: diseñado para 360dp de ancho (estándar). En 720x1600 son ~360dp lógicos.
+const BASE_WIDTH = 360;
+const scale = (size) => Math.round((width / BASE_WIDTH) * size);
+// Factor de fuente — más conservador para no agrandar demasiado en pantallas medianas
+const fs = (size) => Math.round(PixelRatio.roundToNearestPixel((width / BASE_WIDTH) * size));
+// Altura de statusbar en Android (suele ser 24-28dp para 720p sin notch)
+const STATUS_H = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
 
 export default function Inicio() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const [reportes, setReportes] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -152,7 +162,7 @@ export default function Inicio() {
           opacity: headerOpacity,
           transform: [{ translateY: headerSlide }]
       }]}>
-        <BlurView intensity={Platform.OS === 'ios' ? 80 : 100} tint="dark" style={estilos.headerBlur}>
+        <View style={estilos.headerBlur}>
           <View style={estilos.logoFila}>
             <View style={estilos.logoWrapper}>
               <Image source={require('../public/logoouser.png')} style={estilos.logo} resizeMode="contain" />
@@ -166,7 +176,7 @@ export default function Inicio() {
               <Text style={estilos.statusTexto}>{conectado ? 'Online' : 'Offline'}</Text>
             </View>
           </View>
-        </BlurView>
+        </View>
       </Animated.View>
 
       {/* ── SECCIÓN HISTORIAL ────────────────────────── */}
@@ -186,10 +196,10 @@ export default function Inicio() {
       {deferredPrompt && (
         <View style={{ marginHorizontal: 20, marginBottom: 12 }}>
           <TouchableOpacity style={estilos.btnInstalarPWA} onPress={handleInstallPWA} activeOpacity={0.85}>
-            <BlurView intensity={80} tint="light" style={estilos.blurBtn}>
+            <View style={estilos.blurBtn}>
               <Text style={{ fontSize: 18 }}>📲</Text>
               <Text style={estilos.btnInstalarTexto}>Instalar App en el dispositivo</Text>
-            </BlurView>
+            </View>
           </TouchableOpacity>
         </View>
       )}
@@ -198,10 +208,10 @@ export default function Inicio() {
       {nuevoDisponible && (
         <Animated.View style={{ transform: [{ scale: badgePulse }], marginHorizontal: 20, marginBottom: 12 }}>
           <TouchableOpacity style={estilos.nuevoBadge} onPress={cargarNuevos} activeOpacity={0.85}>
-             <BlurView intensity={80} tint="dark" style={estilos.blurBtnBadge}>
+             <View style={estilos.blurBtnBadge}>
               <MaterialIcons name="sync" size={18} color="#FFF" />
               <Text style={estilos.nuevoBadgeTexto}>Nuevos registros disponibles</Text>
-             </BlurView>
+             </View>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -245,114 +255,123 @@ export default function Inicio() {
   );
 }
 
+// Los estilos usan scale() y fs() para adaptarse proporcionalmente
+// a pantallas de 720dp de ancho (HD+, 6.7", ratio 20:9)
 const estilos = StyleSheet.create({
   contenedor: { flex: 1, backgroundColor: '#09090B' },
 
+  // Glows de fondo — calibrados para ancho ~360dp
   bgGlow1: {
-    position: 'absolute', top: -100, left: -50,
-    width: width * 0.8, height: width * 0.8,
+    position: 'absolute', top: scale(-80), left: scale(-40),
+    width: width * 0.75, height: width * 0.75,
     borderRadius: 999, backgroundColor: '#4C1D95',
-    opacity: 0.3, transform: [{ scale: 1.2 }]
+    opacity: 0.25, transform: [{ scale: 1.2 }]
   },
   bgGlow2: {
-    position: 'absolute', top: 50, right: -100,
-    width: width * 0.7, height: width * 0.7,
+    position: 'absolute', top: scale(60), right: scale(-80),
+    width: width * 0.65, height: width * 0.65,
     borderRadius: 999, backgroundColor: '#0F766E',
-    opacity: 0.2, transform: [{ scale: 1.5 }]
+    opacity: 0.18, transform: [{ scale: 1.4 }]
   },
 
   // ── Header Premium ──
+  // paddingTop usa STATUS_H real del dispositivo + un margen visual cómodo
   headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 50,
-    paddingHorizontal: 20,
-    paddingBottom: 10,
+    paddingTop: Platform.OS === 'ios' ? scale(54) : STATUS_H + scale(10),
+    paddingHorizontal: scale(16),
+    paddingBottom: scale(8),
     zIndex: 10,
   },
   headerBlur: {
-    borderRadius: 24, overflow: 'hidden',
-    padding: 16, borderWidth: 1,
+    borderRadius: scale(20), overflow: 'hidden',
+    padding: scale(14), borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: 'rgba(24, 24, 27, 0.4)',
+    backgroundColor: 'rgba(24, 24, 27, 0.5)',
   },
-  logoFila: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  logoFila: { flexDirection: 'row', alignItems: 'center', gap: scale(12) },
   logoWrapper: {
-    width: 50, height: 50, borderRadius: 16,
+    width: scale(44), height: scale(44), borderRadius: scale(13),
     backgroundColor: 'rgba(255,255,255,0.08)',
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
   },
-  logo: { width: 36, height: 36 },
+  logo: { width: scale(32), height: scale(32) },
   headerTextos: { flex: 1 },
-  headerEmpresa: { color: '#FAFAFA', fontSize: 17, fontWeight: '800', letterSpacing: 0.5 },
-  headerSub: { color: '#A1A1AA', fontSize: 12, marginTop: 3, fontWeight: '500' },
+  headerEmpresa: { color: '#FAFAFA', fontSize: fs(15), fontWeight: '800', letterSpacing: 0.4 },
+  headerSub: { color: '#A1A1AA', fontSize: fs(11), marginTop: 2, fontWeight: '500' },
   statusPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    borderRadius: 20, paddingHorizontal: 10, paddingVertical: 6,
+    flexDirection: 'row', alignItems: 'center', gap: scale(5),
+    borderRadius: scale(18), paddingHorizontal: scale(9), paddingVertical: scale(5),
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
   },
-  statusOnline: { backgroundColor: 'rgba(74,222,128,0.15)' },
+  statusOnline:  { backgroundColor: 'rgba(74,222,128,0.15)' },
   statusOffline: { backgroundColor: 'rgba(248,113,113,0.15)' },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusTexto: { color: '#E4E4E7', fontSize: 12, fontWeight: '700' },
+  statusDot: { width: scale(7), height: scale(7), borderRadius: scale(4) },
+  statusTexto: { color: '#E4E4E7', fontSize: fs(11), fontWeight: '700' },
 
   // ── Sección ──
   seccionHeader: {
     flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between',
-    paddingHorizontal: 22, paddingTop: 16, paddingBottom: 16,
+    paddingHorizontal: scale(18), paddingTop: scale(12), paddingBottom: scale(12),
   },
-  seccionTitulo: { fontSize: 22, fontWeight: '900', color: '#FAFAFA', letterSpacing: 0.5 },
-  seccionSub: { fontSize: 13, color: '#A1A1AA', marginTop: 4 },
+  seccionTitulo: { fontSize: fs(19), fontWeight: '900', color: '#FAFAFA', letterSpacing: 0.4 },
+  seccionSub: { fontSize: fs(12), color: '#A1A1AA', marginTop: 3 },
   btnRefresh: {
-    backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 14,
-    padding: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: scale(12),
+    padding: scale(9), borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
   },
 
-  btnInstalarPWA: { borderRadius: 16, overflow: 'hidden' },
+  btnInstalarPWA: { borderRadius: scale(14), overflow: 'hidden' },
   blurBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12,
-    paddingVertical: 14, paddingHorizontal: 16, backgroundColor: 'rgba(255,255,255,0.8)'
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: scale(10),
+    paddingVertical: scale(12), paddingHorizontal: scale(14),
+    backgroundColor: 'rgba(255,255,255,0.85)',
   },
-  btnInstalarTexto: { color: '#0F172A', fontWeight: '800', fontSize: 15 },
+  btnInstalarTexto: { color: '#0F172A', fontWeight: '800', fontSize: fs(14) },
 
-  nuevoBadge: { borderRadius: 16, overflow: 'hidden' },
+  nuevoBadge: { borderRadius: scale(14), overflow: 'hidden' },
   blurBtnBadge: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 14, paddingHorizontal: 16, backgroundColor: 'rgba(99, 102, 241, 0.3)',
-    borderWidth: 1, borderColor: 'rgba(99, 102, 241, 0.4)', borderRadius: 16,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: scale(8),
+    paddingVertical: scale(12), paddingHorizontal: scale(14),
+    backgroundColor: 'rgba(99, 102, 241, 0.3)',
+    borderWidth: 1, borderColor: 'rgba(99, 102, 241, 0.4)', borderRadius: scale(14),
   },
-  nuevoBadgeTexto: { color: '#FFF', fontSize: 14, fontWeight: '800' },
+  nuevoBadgeTexto: { color: '#FFF', fontSize: fs(13), fontWeight: '800' },
 
   // ── Lista ──
-  lista: { paddingHorizontal: 20, paddingBottom: 120, paddingTop: 6 },
-  cargando: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
-  cargandoTexto: { color: '#A1A1AA', fontSize: 15, fontWeight: '600' },
-  
-  vacio: { alignItems: 'center', paddingTop: 80, gap: 16 },
+  lista: { paddingHorizontal: scale(16), paddingBottom: scale(110), paddingTop: scale(4) },
+  cargando: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: scale(14) },
+  cargandoTexto: { color: '#A1A1AA', fontSize: fs(14), fontWeight: '600' },
+
+  vacio: { alignItems: 'center', paddingTop: scale(70), gap: scale(14) },
   vacioIconWrapper: {
-    width: 100, height: 100, borderRadius: 50,
+    width: scale(88), height: scale(88), borderRadius: scale(44),
     backgroundColor: 'rgba(255,255,255,0.03)',
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)',
   },
-  vacioIcono: { fontSize: 48 },
-  vacioTexto: { fontSize: 20, fontWeight: '800', color: '#FAFAFA' },
-  vacioSub: { fontSize: 14, color: '#A1A1AA', textAlign: 'center', paddingHorizontal: 40 },
+  vacioIcono: { fontSize: fs(42) },
+  vacioTexto: { fontSize: fs(18), fontWeight: '800', color: '#FAFAFA' },
+  vacioSub: { fontSize: fs(13), color: '#A1A1AA', textAlign: 'center', paddingHorizontal: scale(32) },
 
-  // ── FAB ──
+  // ── FAB ── bottom adaptado con safeArea
   fabWrapper: {
-    position: 'absolute', bottom: 30, left: 24, right: 24,
-    shadowColor: '#818CF8', shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3, shadowRadius: 20, elevation: 12,
+    position: 'absolute',
+    bottom: scale(20),
+    left: scale(20), right: scale(20),
+    shadowColor: '#818CF8', shadowOffset: { width: 0, height: scale(8) },
+    shadowOpacity: 0.28, shadowRadius: scale(16), elevation: 10,
   },
   fab: {
-    backgroundColor: '#4F46E5', borderRadius: 20,
+    backgroundColor: '#4F46E5', borderRadius: scale(18),
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 16, gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
+    paddingVertical: scale(15), gap: scale(10),
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
   },
   fabIconCaja: {
-    width: 32, height: 32, borderRadius: 10,
+    width: scale(28), height: scale(28), borderRadius: scale(9),
     backgroundColor: 'rgba(255,255,255,0.25)',
     alignItems: 'center', justifyContent: 'center',
   },
-  fabTexto: { color: '#FFF', fontSize: 17, fontWeight: '800', letterSpacing: 0.5 },
+  fabTexto: { color: '#FFF', fontSize: fs(16), fontWeight: '800', letterSpacing: 0.4 },
 });

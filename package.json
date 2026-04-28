@@ -5,8 +5,8 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "dev": "expo start -c --web",
     "deploy": "expo export -p web --output-dir docs && copy public\\logoouser.png docs\\logoouser.png && copy public\\manifest.json docs\\manifest.json && copy public\\service-worker.js docs\\service-worker.js && type nul > docs\\.nojekyll && git add docs && git commit -m \"deploy: produccion PWA\" && git push origin main"

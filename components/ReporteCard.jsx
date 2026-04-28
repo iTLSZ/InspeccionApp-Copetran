@@ -4,9 +4,15 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Image,
-  Modal, Pressable, Animated, Platform
+  Modal, Pressable, Animated, Platform, Dimensions, PixelRatio
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+// expo-blur no compatible con web — reemplazado por View
+
+const { width } = Dimensions.get('window');
+const BASE_WIDTH = 360;
+const scale = (size) => Math.round((width / BASE_WIDTH) * size);
+const fs = (size) => Math.round(PixelRatio.roundToNearestPixel((width / BASE_WIDTH) * size));
+
 
 const COMPONENTES = {
   'DEFENSAS':           { color: '#3B82F6', emoji: '🛡️' },
@@ -45,22 +51,21 @@ export function ReporteCard({ reporte }) {
   }
 
   return (
-  return (
     <>
       <Animated.View style={[estilos.card, { transform: [{ scale: scaleAnim }] }]}>
         <TouchableOpacity
           activeOpacity={0.9} onPressIn={onIn} onPressOut={onOut}
           onPress={reporte.linkFoto ? () => setVerFoto(true) : null}
         >
-          <BlurView intensity={Platform.OS === 'ios' ? 40 : 100} tint="dark" style={estilos.inner}>
+          <View style={[estilos.inner, { backgroundColor: 'rgba(24, 24, 27, 0.85)' }]}>
             {/* ── FOTO IZQUIERDA ── */}
             <View style={estilos.fotoContenedor}>
               {reporte.linkFoto ? (
                 <>
                   <Image source={{ uri: reporte.linkFoto }} style={estilos.foto} resizeMode="cover" />
-                  <BlurView intensity={50} tint="dark" style={estilos.fotoOverlay}>
+                  <View style={[estilos.fotoOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
                     <Text style={estilos.fotoLupa}>🔍</Text>
-                  </BlurView>
+                  </View>
                 </>
               ) : (
                 <View style={[estilos.fotoPlaceholder, { backgroundColor: info.color + '1A' }]}>
@@ -122,7 +127,7 @@ export function ReporteCard({ reporte }) {
                 </Text>
               </View>
             </View>
-          </BlurView>
+          </View>
         </TouchableOpacity>
       </Animated.View>
 
@@ -130,7 +135,7 @@ export function ReporteCard({ reporte }) {
       {reporte.linkFoto && (
         <Modal visible={verFoto} transparent animationType="fade" onRequestClose={() => setVerFoto(false)}>
           <Pressable style={estilos.modalFondo} onPress={() => setVerFoto(false)}>
-            <BlurView intensity={100} tint="dark" style={estilos.modalBlurBox}>
+            <View style={estilos.modalBlurBox}>
               <Image source={{ uri: reporte.linkFoto }} style={estilos.fotoAmpliada} resizeMode="contain" />
               <View style={estilos.modalInfo}>
                 <Text style={estilos.modalPlaca}>{reporte.placa}</Text>
@@ -139,7 +144,7 @@ export function ReporteCard({ reporte }) {
               <TouchableOpacity style={estilos.modalCerrar} onPress={() => setVerFoto(false)}>
                 <Text style={estilos.modalCerrarTexto}>✕  Cerrar</Text>
               </TouchableOpacity>
-            </BlurView>
+            </View>
           </Pressable>
         </Modal>
       )}
@@ -149,75 +154,80 @@ export function ReporteCard({ reporte }) {
 
 const estilos = StyleSheet.create({
   card: {
-    marginBottom: 16,
-    borderRadius: 22,
+    marginBottom: scale(13),
+    borderRadius: scale(18),
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 8,
-    backgroundColor: 'rgba(24, 24, 27, 0.4)', // Base en caso de que BlurView no soporte bien Android
+    shadowOffset: { width: 0, height: scale(5) },
+    shadowOpacity: 0.28,
+    shadowRadius: scale(8),
+    elevation: 7,
+    backgroundColor: 'rgba(24, 24, 27, 0.4)',
   },
   inner: {
     flexDirection: 'row',
-    borderRadius: 22,
+    borderRadius: scale(18),
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
-    minHeight: 155,
+    minHeight: scale(135),
   },
 
   // ── Foto izquierda ──
-  fotoContenedor: { width: 115, position: 'relative' },
-  foto: { width: 115, height: '100%', minHeight: 155 },
+  fotoContenedor: { width: scale(100), position: 'relative' },
+  foto: { width: scale(100), height: '100%', minHeight: scale(135) },
   fotoOverlay: {
-    position: 'absolute', bottom: 8, right: 8,
-    borderRadius: 10, padding: 6, overflow: 'hidden',
+    position: 'absolute', bottom: scale(6), right: scale(6),
+    borderRadius: scale(8), padding: scale(5), overflow: 'hidden',
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)'
   },
-  fotoLupa: { fontSize: 13 },
+  fotoLupa: { fontSize: fs(11) },
   fotoPlaceholder: {
-    width: 115, minHeight: 155,
-    alignItems: 'center', justifyContent: 'center', gap: 8,
+    width: scale(100), minHeight: scale(135),
+    alignItems: 'center', justifyContent: 'center', gap: scale(6),
   },
-  placeholderTexto: { fontSize: 11, color: '#94A3B8', fontWeight: '700' },
-  barraColor: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 4 },
+  placeholderTexto: { fontSize: fs(10), color: '#94A3B8', fontWeight: '700' },
+  barraColor: { position: 'absolute', right: 0, top: 0, bottom: 0, width: scale(3) },
 
   // ── Contenido derecha ──
-  contenido: { flex: 1, padding: 14, gap: 6, justifyContent: 'center' },
+  contenido: { flex: 1, padding: scale(11), gap: scale(4), justifyContent: 'center' },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  colIzquierda: { flex: 1, paddingRight: 6, gap: 10, alignItems: 'flex-start' },
-  colDerecha: { flexShrink: 1, alignItems: 'flex-end', maxWidth: '40%' },
+  colIzquierda: { flex: 1, paddingRight: scale(5), gap: scale(7), alignItems: 'flex-start' },
+  colDerecha: { flexShrink: 1, alignItems: 'flex-end', maxWidth: '38%' },
   
-  placaFila: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  placa: { fontSize: 21, fontWeight: '900', color: '#FAFAFA', letterSpacing: 2 },
-  horaDestacada: { fontSize: 14, fontWeight: '800', color: '#A78BFA', letterSpacing: 0.5 },
-  separadorHoraFecha: { width: 30, height: 2, backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: 6, borderRadius: 2 },
-  fechaDestacada: { fontSize: 13, color: '#94A3B8', fontWeight: '700' },
+  placaFila: { flexDirection: 'row', alignItems: 'center', gap: scale(6) },
+  // La placa es el elemento más importante — fontSize medio para 720p
+  placa: { fontSize: fs(17), fontWeight: '900', color: '#FAFAFA', letterSpacing: 1.5 },
+  horaDestacada: { fontSize: fs(12), fontWeight: '800', color: '#A78BFA', letterSpacing: 0.3 },
+  separadorHoraFecha: { width: scale(24), height: scale(2), backgroundColor: 'rgba(255,255,255,0.1)', marginVertical: scale(4), borderRadius: scale(2) },
+  fechaDestacada: { fontSize: fs(11), color: '#94A3B8', fontWeight: '700' },
   busetaBadge: {
-    backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 8,
-    paddingHorizontal: 8, paddingVertical: 4,
+    backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: scale(7),
+    paddingHorizontal: scale(6), paddingVertical: scale(3),
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)'
   },
-  busetaTexto: { fontSize: 11, color: '#E2E8F0', fontWeight: '700' },
+  busetaTexto: { fontSize: fs(10), color: '#E2E8F0', fontWeight: '700' },
 
   componenteBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    alignSelf: 'flex-start', borderRadius: 12,
-    paddingHorizontal: 10, paddingVertical: 5, maxWidth: '100%',
+    flexDirection: 'row', alignItems: 'center', gap: scale(5),
+    alignSelf: 'flex-start', borderRadius: scale(10),
+    paddingHorizontal: scale(8), paddingVertical: scale(4), maxWidth: '100%',
   },
-  componenteTexto: { fontSize: 11, fontWeight: '800', flexShrink: 1 },
+  componenteTexto: { fontSize: fs(10), fontWeight: '800', flexShrink: 1 },
   prelBadge: {
-    backgroundColor: '#F97316', borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1, marginLeft: 4
+    backgroundColor: '#F97316', borderRadius: scale(5),
+    paddingHorizontal: scale(4), paddingVertical: scale(1), marginLeft: scale(3)
   },
-  prelTexto: { color: '#FFF', fontSize: 9, fontWeight: '900' },
+  prelTexto: { color: '#FFF', fontSize: fs(8), fontWeight: '900' },
 
-  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginVertical: 6 },
+  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.06)', marginVertical: scale(4) },
   
-  poblacionIzquierda: { fontSize: 12, fontWeight: '600', color: '#94A3B8', marginTop: 2 },
+  poblacionIzquierda: { fontSize: fs(11), fontWeight: '600', color: '#94A3B8', marginTop: scale(1) },
   
-  observacionContenedor: { backgroundColor: 'rgba(0,0,0,0.2)', padding: 10, borderRadius: 10, marginTop: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.03)' },
-  observacionTexto: { fontSize: 12, color: '#E2E8F0', lineHeight: 18, fontStyle: 'italic' },
+  observacionContenedor: {
+    backgroundColor: 'rgba(0,0,0,0.2)', padding: scale(8), borderRadius: scale(8),
+    marginTop: scale(3), borderWidth: 1, borderColor: 'rgba(255,255,255,0.03)'
+  },
+  observacionTexto: { fontSize: fs(11), color: '#E2E8F0', lineHeight: fs(16), fontStyle: 'italic' },
 
   // ── Modal ──
   modalFondo: {
@@ -225,18 +235,21 @@ const estilos = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
   },
   modalBlurBox: {
-    width: '90%', borderRadius: 28, overflow: 'hidden', alignItems: 'center',
+    width: '92%', borderRadius: scale(24), overflow: 'hidden', alignItems: 'center',
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)',
     backgroundColor: 'rgba(24,24,27,0.7)',
   },
-  fotoAmpliada: { width: '100%', height: 380, backgroundColor: '#000' },
-  modalInfo: { padding: 20, alignItems: 'center', gap: 6 },
-  modalPlaca: { color: '#FAFAFA', fontSize: 24, fontWeight: '900', letterSpacing: 2 },
-  modalSub:   { color: '#A1A1AA', fontSize: 14, fontWeight: '500' },
+  fotoAmpliada: { width: '100%', height: scale(320), backgroundColor: '#000' },
+  modalInfo: { padding: scale(16), alignItems: 'center', gap: scale(5) },
+  modalPlaca: { color: '#FAFAFA', fontSize: fs(20), fontWeight: '900', letterSpacing: 2 },
+  modalSub: { color: '#A1A1AA', fontSize: fs(13), fontWeight: '500' },
   modalCerrar: {
-    margin: 20, backgroundColor: '#4F46E5', borderRadius: 16,
-    paddingVertical: 14, paddingHorizontal: 40,
-    shadowColor: '#4F46E5', shadowOffset: { width:0, height:4 }, shadowOpacity: 0.4, shadowRadius: 8
+    marginBottom: scale(18), marginHorizontal: scale(20),
+    backgroundColor: '#4F46E5', borderRadius: scale(14),
+    paddingVertical: scale(13), paddingHorizontal: scale(36),
+    shadowColor: '#4F46E5', shadowOffset: { width: 0, height: scale(4) },
+    shadowOpacity: 0.4, shadowRadius: scale(8)
   },
-  modalCerrarTexto: { color: '#FFF', fontWeight: '800', fontSize: 16, letterSpacing: 0.5 },
+  modalCerrarTexto: { color: '#FFF', fontWeight: '800', fontSize: fs(15), letterSpacing: 0.4 },
 });
+
