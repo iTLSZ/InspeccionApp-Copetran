@@ -174,9 +174,14 @@ export default function Inicio() {
           onPress={onRefresh}
           style={estilos.btnRefresh}
           activeOpacity={0.7}
+          disabled={refrescando}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={{ color: '#A78BFA', fontWeight: 'bold', fontSize: 13 }}>Actualizar</Text>
+          {refrescando ? (
+            <ActivityIndicator size="small" color="#A78BFA" />
+          ) : (
+            <Text style={{ color: '#A78BFA', fontWeight: 'bold', fontSize: 13 }}>Actualizar</Text>
+          )}
         </TouchableOpacity>
       </View>
 

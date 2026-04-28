@@ -39,6 +39,15 @@ export function ReporteCard({ reporte, onActualizado }) {
   const [verFoto, setVerFoto]     = useState(false);
   const [editando, setEditando]   = useState(false);
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  const fadeAnim  = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(20)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, friction: 7, tension: 40, useNativeDriver: true }),
+    ]).start();
+  }, []);
 
   // Normalizar URL de foto para que funcione en web (Google Drive → thumbnail directo)
   const fotoUrl = normalizeImageUrl(reporte.linkFoto);
@@ -54,7 +63,7 @@ export function ReporteCard({ reporte, onActualizado }) {
 
   return (
     <>
-      <Animated.View style={[estilos.card, { transform: [{ scale: scaleAnim }] }]}>
+      <Animated.View style={[estilos.card, { opacity: fadeAnim, transform: [{ scale: scaleAnim }, { translateY: slideAnim }] }]}>
         <TouchableOpacity
           activeOpacity={0.9} onPressIn={onIn} onPressOut={onOut}
           onPress={fotoUrl ? () => setVerFoto(true) : null}
