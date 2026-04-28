@@ -170,19 +170,21 @@ export default function Inicio() {
           <Text style={estilos.seccionTitulo}>Últimos reportes</Text>
           <Text style={estilos.seccionSub}>Monitorea la flota en tiempo real</Text>
         </View>
-        <TouchableOpacity
-          onPress={onRefresh}
-          style={estilos.btnRefresh}
-          activeOpacity={0.7}
-          disabled={refrescando}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          {refrescando ? (
-            <ActivityIndicator size="small" color="#A78BFA" />
-          ) : (
-            <Text style={{ color: '#A78BFA', fontWeight: 'bold', fontSize: 13 }}>Actualizar</Text>
-          )}
-        </TouchableOpacity>
+        {!cargando && (
+          <TouchableOpacity
+            onPress={onRefresh}
+            style={estilos.btnRefresh}
+            activeOpacity={0.7}
+            disabled={refrescando}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            {refrescando ? (
+              <ActivityIndicator size="small" color="#A78BFA" />
+            ) : (
+              <Text style={{ color: '#A78BFA', fontWeight: 'bold', fontSize: 13 }}>Actualizar</Text>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Botón instalar PWA */}
