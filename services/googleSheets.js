@@ -7,6 +7,23 @@ import { APPS_SCRIPT_URL } from '../app/config';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+export function normalizeImageUrl(url) {
+  if (!url) return null;
+  try {
+    let fileId = null;
+    const matchView = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (matchView) fileId = matchView[1];
+    if (!fileId) {
+      const matchOpen = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (matchOpen) fileId = matchOpen[1];
+    }
+    if (fileId) {
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+  } catch (_) {}
+  return url;
+}
+
 async function imageUriToBase64(uri) {
   if (!uri) return null;
   try {
@@ -120,7 +137,10 @@ export async function getRows(limite = 20) {
 
   const filas = data.values || [];
 
+  const totalFilas = filas.length;
+
   return filas.slice(-limite).reverse().map((fila, idx) => {
+    const rowIndex = totalFilas - idx; // Fila real en el sheet
     let f = fila[0] || '';
     if (f.includes('T')) {
       const [yyyy, mm, dd] = f.split('T')[0].split('-');
@@ -129,6 +149,7 @@ export async function getRows(limite = 20) {
     
     return {
       id: `row_${idx}`,
+      rowIndex,
       fecha:        f,
       hora:         fila[1]  || '',
       poblacion:    fila[2]  || '',
