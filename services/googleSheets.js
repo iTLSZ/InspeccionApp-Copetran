@@ -7,36 +7,6 @@ import { APPS_SCRIPT_URL } from '../app/config';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-/**
- * Convierte una URL de Google Drive a un thumbnail directo que funciona en web.
- * - /file/d/{ID}/view    → thumbnail directo
- * - /open?id={ID}        → thumbnail directo
- * - export=view          → thumbnail directo
- * URLs que ya son directas o de otros dominios se devuelven sin cambios.
- */
-export function normalizeImageUrl(url) {
-  if (!url) return null;
-  try {
-    // Extraer el ID de distintos formatos de URL de Google Drive
-    let fileId = null;
-
-    const matchView = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (matchView) fileId = matchView[1];
-
-    if (!fileId) {
-      const matchOpen = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (matchOpen) fileId = matchOpen[1];
-    }
-
-    if (fileId) {
-      // Thumbnail de Google Drive que funciona sin autenticación en web
-      return `https://lh3.googleusercontent.com/d/${fileId}`;
-    }
-  } catch (_) {}
-  return url; // Devolver sin cambios si no es URL de Drive
-}
-
-
 async function imageUriToBase64(uri) {
   if (!uri) return null;
   try {
@@ -150,10 +120,7 @@ export async function getRows(limite = 20) {
 
   const filas = data.values || [];
 
-  const totalFilas = filas.length;
   return filas.slice(-limite).reverse().map((fila, idx) => {
-    // rowIndex real en Sheets (fila 1 = encabezado, filas de datos desde 2)
-    const rowIndex = totalFilas - idx; // Fila real en el sheet (2 = primera fila de datos)
     let f = fila[0] || '';
     if (f.includes('T')) {
       const [yyyy, mm, dd] = f.split('T')[0].split('-');
@@ -162,7 +129,6 @@ export async function getRows(limite = 20) {
     
     return {
       id: `row_${idx}`,
-      rowIndex,
       fecha:        f,
       hora:         fila[1]  || '',
       poblacion:    fila[2]  || '',
@@ -179,11 +145,6 @@ export async function getRows(limite = 20) {
 }
 
 // ─── Editar fila existente ────────────────────────────────────────────────────
-
-/**
- * Actualiza una fila existente en Google Sheets por su rowIndex (base 2, encabezado en fila 1).
- * Si se proporciona _fotoUri, se sube y vincula la imagen.
- */
 export async function updateRow(rowIndex, reporte) {
   const fila = [
     reporte.fecha,
@@ -199,7 +160,7 @@ export async function updateRow(rowIndex, reporte) {
     reporte.observaciones || '',
   ];
 
-  const data = await postScript({ action: 'updateRow', rowIndex, values: fila });
+  const data = await postScript({ action: 'updateRow', rowIndex, row: rowIndex, values: fila });
   if (!data.success) {
     throw new Error(`Error actualizando fila: ${data.error || 'Desconocido'}`);
   }
