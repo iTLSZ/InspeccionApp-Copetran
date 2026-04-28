@@ -291,7 +291,7 @@ const estilos = StyleSheet.create({
   logo:          { width: scale(32), height: scale(32) },
   headerTextos:  { flex: 1 },
   headerEmpresa: { color: '#FAFAFA', fontSize: fs(15), fontWeight: '800', letterSpacing: 0.4 },
-  headerSub:     { color: '#71717A', fontSize: fs(11), marginTop: 2, fontWeight: '500' },
+  headerSub:     { color: '#FFFFFF', fontSize: fs(11), marginTop: 2, fontWeight: '500' },
 
   statusPill: {
     flexDirection: 'row', alignItems: 'center', gap: scale(5),
@@ -309,7 +309,7 @@ const estilos = StyleSheet.create({
     paddingHorizontal: scale(18), paddingTop: scale(14), paddingBottom: scale(10),
   },
   seccionTitulo: { fontSize: fs(19), fontWeight: '900', color: '#FAFAFA', letterSpacing: 0.3 },
-  seccionSub:    { fontSize: fs(12), color: '#52525B', marginTop: 3 },
+  seccionSub:    { fontSize: fs(12), color: '#FFFFFF', marginTop: 3 },
   btnRefresh: {
     backgroundColor: 'rgba(167,139,250,0.1)',
     borderRadius: scale(12),
