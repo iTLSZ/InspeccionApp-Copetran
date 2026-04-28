@@ -118,12 +118,15 @@ export function EditReporteModal({ visible, reporte, onClose, onGuardado }) {
             </View>
           </View>
 
-          {/* ── OVERLAY ÉXITO ── */}
+          {/* ── OVERLAY CONFIRMACIÓN ── */}
           {guardado && (
-            <View style={e.exitoOverlay}>
-              <View style={e.exitoCaja}>
-                <Text style={e.exitoIcono}>✓</Text>
-                <Text style={e.exitoTexto}>¡Guardado!</Text>
+            <View style={e.overlayConfirmacion}>
+              <View style={e.overlayCaja}>
+                <View style={e.overlayCirculo}>
+                  <Text style={e.overlayIcono}>✓</Text>
+                </View>
+                <Text style={e.overlayTitulo}>¡Guardado!</Text>
+                <Text style={e.overlaySub}>Reporte actualizado con éxito</Text>
               </View>
             </View>
           )}
@@ -356,17 +359,24 @@ const e = StyleSheet.create({
   btnCancelar: { alignItems: 'center', paddingVertical: 12 },
   btnCancelarTexto: { color: '#71717A', fontSize: 14, fontWeight: '600' },
 
-  // Overlay éxito
-  exitoOverlay: {
+  // Overlay confirmación
+  overlayConfirmacion: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(9,9,11,0.85)',
-    justifyContent: 'center', alignItems: 'center', zIndex: 99,
+    backgroundColor: 'rgba(15,23,42,0.7)',
+    justifyContent: 'center', alignItems: 'center',
+    zIndex: 99,
   },
-  exitoCaja: {
-    backgroundColor: '#18181B', borderRadius: 24, padding: 36,
-    alignItems: 'center', gap: 10,
-    borderWidth: 1, borderColor: '#4F46E5',
+  overlayCaja: {
+    backgroundColor: '#FFFFFF', borderRadius: 24,
+    padding: 36, alignItems: 'center', gap: 10,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25, shadowRadius: 20, elevation: 20,
   },
-  exitoIcono: { fontSize: 42, color: '#818CF8' },
-  exitoTexto: { color: '#FAFAFA', fontSize: 22, fontWeight: '900' },
+  overlayCirculo: {
+    width: 70, height: 70, borderRadius: 35,
+    backgroundColor: '#4338CA', alignItems: 'center', justifyContent: 'center',
+  },
+  overlayIcono: { color: '#FFF', fontSize: 32, fontWeight: '900' },
+  overlayTitulo: { fontSize: 22, fontWeight: '900', color: '#1E293B' },
+  overlaySub: { fontSize: 14, color: '#64748B' },
 });
