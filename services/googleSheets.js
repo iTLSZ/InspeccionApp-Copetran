@@ -135,7 +135,7 @@ export async function getRows(limite = 20) {
   const urlParams = APPS_SCRIPT_URL.includes('?') ? '&' : '?';
   const noCacheUrl = `${APPS_SCRIPT_URL}${urlParams}t=${Date.now()}`;
   console.log('FETCHING URL:', noCacheUrl);
-  const response = await fetch(noCacheUrl, { cache: 'no-store' });
+  const response = await fetch(noCacheUrl);
   if (!response.ok) throw new Error('Error al conectar con Apps Script');
 
   let text = '';

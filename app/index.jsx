@@ -109,7 +109,7 @@ export default function Inicio() {
   useFocusEffect(
     useCallback(() => {
       cargarReportes(false);
-      const intervalo = setInterval(() => cargarReportes(true), 12000);
+      const intervalo = setInterval(() => cargarReportes(true), 30000);
       return () => clearInterval(intervalo);
     }, [cargarReportes])
   );
@@ -176,9 +176,7 @@ export default function Inicio() {
           activeOpacity={0.7}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Animated.View style={{ transform: [{ rotate: spin }] }}>
-            <Text style={{ fontSize: 20, color: '#A78BFA' }}>🔄</Text>
-          </Animated.View>
+          <Text style={{ color: '#A78BFA', fontWeight: 'bold', fontSize: 13 }}>Actualizar</Text>
         </TouchableOpacity>
       </View>
 
@@ -196,7 +194,6 @@ export default function Inicio() {
       {nuevoDisponible && (
         <Animated.View style={[estilos.badgeWrapper, { transform: [{ scale: badgePulse }] }]}>
           <TouchableOpacity style={estilos.nuevoBadge} onPress={cargarNuevos} activeOpacity={0.85}>
-            <Text style={{ fontSize: 14, color: '#FFF' }}>🔄</Text>
             <Text style={estilos.nuevoBadgeTexto}>Nuevos registros — toca para actualizar</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -243,10 +240,7 @@ export default function Inicio() {
       {/* ── FAB NUEVO REPORTE ── */}
       <Animated.View style={[estilos.fabWrapper, { transform: [{ scale: fabScale }] }]}>
         <TouchableOpacity style={estilos.fab} onPress={handleNuevoReporte} activeOpacity={0.88}>
-          <Animated.View style={{ transform: [{ scale: scaleValue }], flexDirection: 'row', alignItems: 'center', gap: scale(10) }}>
-            <View style={estilos.fabIconCaja}>
-              <Text style={{ fontSize: 20, color: '#FFF' }}>➕</Text>
-            </View>
+          <Animated.View style={{ transform: [{ scale: scaleValue }], flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={estilos.fabTexto}>Nuevo Reporte</Text>
           </Animated.View>
         </TouchableOpacity>
