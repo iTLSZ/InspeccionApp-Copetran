@@ -6,7 +6,6 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Image,
   Modal, Pressable, Animated, Platform, Dimensions, PixelRatio
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { EditReporteModal } from './EditReporteModal';
 import { normalizeImageUrl } from '../services/googleSheets';
 
@@ -78,7 +77,7 @@ export function ReporteCard({ reporte, onActualizado }) {
               >
                 <Text style={{ fontSize: 28 }}>{info.emoji}</Text>
                 <View style={estilos.addFotoBtn}>
-                  <MaterialIcons name="add-a-photo" size={14} color="#818CF8" />
+                  <Text style={{ fontSize: 14 }}>📸</Text>
                   <Text style={estilos.addFotoTexto}>Agregar foto</Text>
                 </View>
               </TouchableOpacity>
@@ -133,7 +132,7 @@ export function ReporteCard({ reporte, onActualizado }) {
                   onPress={() => setEditando(true)}
                   activeOpacity={0.75}
                 >
-                  <MaterialIcons name="edit" size={13} color="#818CF8" />
+                  <Text style={{ fontSize: 13 }}>✏️</Text>
                   <Text style={estilos.btnEditarTexto}>Editar</Text>
                 </TouchableOpacity>
               </View>

@@ -132,8 +132,10 @@ export async function appendRow(reporte) {
 // ─── Google Sheets — Leer reportes ──────────────────────────────────────────
 
 export async function getRows(limite = 20) {
-  console.log('FETCHING URL:', APPS_SCRIPT_URL);
-  const response = await fetch(APPS_SCRIPT_URL);
+  const urlParams = APPS_SCRIPT_URL.includes('?') ? '&' : '?';
+  const noCacheUrl = `${APPS_SCRIPT_URL}${urlParams}t=${Date.now()}`;
+  console.log('FETCHING URL:', noCacheUrl);
+  const response = await fetch(noCacheUrl, { cache: 'no-store' });
   if (!response.ok) throw new Error('Error al conectar con Apps Script');
 
   let text = '';
@@ -199,7 +201,7 @@ export async function updateRow(rowIndex, reporte) {
     reporte.observaciones || '',
   ];
 
-  const data = await postScript({ action: 'updateRow', rowIndex, values: fila });
+  const data = await postScript({ action: 'updateRow', rowIndex, row: rowIndex, values: fila });
   if (!data.success) {
     throw new Error(`Error actualizando fila: ${data.error || 'Desconocido'}`);
   }

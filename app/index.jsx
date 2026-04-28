@@ -7,7 +7,6 @@ import {
   RefreshControl, ActivityIndicator, Platform, Alert, Image,
   Animated, Easing, Dimensions, PixelRatio, StatusBar
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReporteCard } from '../components/ReporteCard';
@@ -178,7 +177,7 @@ export default function Inicio() {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Animated.View style={{ transform: [{ rotate: spin }] }}>
-            <MaterialIcons name="refresh" size={22} color="#A78BFA" />
+            <Text style={{ fontSize: 20, color: '#A78BFA' }}>🔄</Text>
           </Animated.View>
         </TouchableOpacity>
       </View>
@@ -197,7 +196,7 @@ export default function Inicio() {
       {nuevoDisponible && (
         <Animated.View style={[estilos.badgeWrapper, { transform: [{ scale: badgePulse }] }]}>
           <TouchableOpacity style={estilos.nuevoBadge} onPress={cargarNuevos} activeOpacity={0.85}>
-            <MaterialIcons name="sync" size={16} color="#FFF" />
+            <Text style={{ fontSize: 14, color: '#FFF' }}>🔄</Text>
             <Text style={estilos.nuevoBadgeTexto}>Nuevos registros — toca para actualizar</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -246,7 +245,7 @@ export default function Inicio() {
         <TouchableOpacity style={estilos.fab} onPress={handleNuevoReporte} activeOpacity={0.88}>
           <Animated.View style={{ transform: [{ scale: scaleValue }], flexDirection: 'row', alignItems: 'center', gap: scale(10) }}>
             <View style={estilos.fabIconCaja}>
-              <MaterialIcons name="add" size={22} color="#FFF" />
+              <Text style={{ fontSize: 20, color: '#FFF' }}>➕</Text>
             </View>
             <Text style={estilos.fabTexto}>Nuevo Reporte</Text>
           </Animated.View>
