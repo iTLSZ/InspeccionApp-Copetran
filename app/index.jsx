@@ -109,7 +109,7 @@ export default function Inicio() {
   useFocusEffect(
     useCallback(() => {
       cargarReportes(false);
-      const intervalo = setInterval(() => cargarReportes(true), 30000);
+      const intervalo = setInterval(() => cargarReportes(true), 15000);
       return () => clearInterval(intervalo);
     }, [cargarReportes])
   );
