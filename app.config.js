@@ -22,7 +22,7 @@ module.exports = {
     ],
     extra: {
       EXPO_PUBLIC_APPS_SCRIPT_URL: process.env.EXPO_PUBLIC_APPS_SCRIPT_URL,
-      NOMBRE_EMPRESA: process.env.NOMBRE_EMPRESA || 'InspeccionApp Copetran',
+      NOMBRE_EMPRESA: process.env.NOMBRE_EMPRESA || 'COPETRAN',
       eas: {
         projectId: "2bec1d05-2096-4f53-b25e-2bf008673771"
       }
@@ -44,8 +44,8 @@ module.exports = {
       output: 'static',
       favicon: './public/logoouser.png',
       icon: './public/logoouser.png',
-      name: 'InspeccionApp Copetran',
-      shortName: 'InspeccionApp',
+      name: 'COPETRAN',
+      shortName: 'COPETRAN',
       description: 'Reporte de daños de equipos Copetran',
       themeColor: '#1565C0',
       backgroundColor: '#1565C0',
