@@ -199,7 +199,7 @@ export async function updateRow(rowIndex, reporte) {
     reporte.observaciones || '',
   ];
 
-  const data = await postScript({ action: 'updateRow', rowIndex, row: rowIndex, values: fila });
+  const data = await postScript({ action: 'updateRow', rowIndex, values: fila });
   if (!data.success) {
     throw new Error(`Error actualizando fila: ${data.error || 'Desconocido'}`);
   }
