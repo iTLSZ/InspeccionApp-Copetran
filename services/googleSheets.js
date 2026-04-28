@@ -119,8 +119,10 @@ export async function appendRow(reporte) {
 // ─── Google Sheets — Leer reportes ──────────────────────────────────────────
 
 export async function getRows(limite = 20) {
-  console.log('FETCHING URL:', APPS_SCRIPT_URL);
-  const response = await fetch(APPS_SCRIPT_URL);
+  const urlParams = APPS_SCRIPT_URL.includes('?') ? '&' : '?';
+  const noCacheUrl = `${APPS_SCRIPT_URL}${urlParams}t=${Date.now()}`;
+  console.log('FETCHING URL:', noCacheUrl);
+  const response = await fetch(noCacheUrl);
   if (!response.ok) throw new Error('Error al conectar con Apps Script');
 
   let text = '';
@@ -140,7 +142,10 @@ export async function getRows(limite = 20) {
   const totalFilas = filas.length;
 
   return filas.slice(-limite).reverse().map((fila, idx) => {
-    const rowIndex = totalFilas - idx; // Fila real en el sheet
+    // Si data.values no incluye headers, el índice 0 es la fila 2.
+    // idx = 0 es el último elemento (filas.length - 1).
+    // Fila en sheet = (filas.length - 1 - idx) + 2 = totalFilas - idx + 1
+    const rowIndex = totalFilas - idx + 1; 
     let f = fila[0] || '';
     if (f.includes('T')) {
       const [yyyy, mm, dd] = f.split('T')[0].split('-');
