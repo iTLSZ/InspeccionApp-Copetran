@@ -1,0 +1,22 @@
+node_modules/
+.expo/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+veda
+.idea/
+.vscode/
+.env
+.env.*
+!.env.example
+
+# Archivos de datos — no publicar
+public/*.xlsx
+public/*.xls
+docs/*.xlsx
+docs/*.xls

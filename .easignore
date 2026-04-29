@@ -1,0 +1,23 @@
+# Excluir carpetas generadas por Gradle que pueden tener archivos bloqueados
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+
+# Excluir node_modules (EAS los reinstala en el servidor)
+node_modules/
+
+# Excluir archivos de Expo locales
+.expo/
+dist/
+
+# Excluir archivos de entorno
+.env
+.env.*
+!.env.example
+
+# Archivos de datos - no publicar
+public/*.xlsx
+public/*.xls
+docs/*.xlsx
+docs/*.xls
