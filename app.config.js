@@ -49,14 +49,14 @@ module.exports = {
       description: 'Reporte de daños de equipos Copetran',
       themeColor: '#1565C0',
       backgroundColor: '#1565C0',
-      startUrl: '/InspeccionApp-Copetran/',
+      startUrl: '/',
       display: 'standalone',
       orientation: 'portrait',
-      scope: '/InspeccionApp-Copetran/',
+      scope: '/',
       lang: 'es',
     },
     experiments: {
-      baseUrl: '/InspeccionApp-Copetran'
+      baseUrl: ''
     }
   },
 };

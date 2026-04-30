@@ -1,7 +1,7 @@
 {
   "name": "inspeccion-app",
   "version": "1.0.0",
-  "homepage": "https://iTLSZ.github.io/InspeccionApp-Copetran",
+  "homepage": ".",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
