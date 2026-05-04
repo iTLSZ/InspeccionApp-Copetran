@@ -1,28 +1,28 @@
 // service-worker.js
 // Service Worker para InspeccionApp PWA
 // IMPORTANTE: este archivo se sirve desde la raíz del scope.
-// Las rutas usan './' para ser relativas al scope (funciona en dev Y GitHub Pages)
 
-const CACHE_NAME = 'inspeccionapp-v2';
+// ⚠️ Cambia este número cada vez que hagas un deploy para forzar actualización inmediata.
+const CACHE_VERSION = 4;
+const CACHE_NAME = `inspeccionapp-v${CACHE_VERSION}`;
 
-// Solo cachear lo que seguro existe — sin ICON.png que no existe en dev
 const PRECACHE_URLS = [
-  './',
   './manifest.json',
   './logoouser.png',
 ];
 
-// ── Instalación: precachear assets críticos ──────────────────────────────────
+// ── Instalación ──────────────────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) =>
-        // addAll falla si UNO falla — usamos add individual con catch
-        Promise.allSettled(PRECACHE_URLS.map((url) =>
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(
+        PRECACHE_URLS.map((url) =>
           cache.add(url).catch((e) => console.warn('[SW] No se pudo cachear:', url, e.message))
-        ))
+        )
       )
+    )
   );
+  // Tomar control inmediatamente, sin esperar a que cierren las pestañas viejas
   self.skipWaiting();
 });
 
@@ -30,20 +30,22 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => {
+        console.log('[SW] Eliminando caché vieja:', k);
+        return caches.delete(k);
+      }))
     )
   );
   self.clients.claim();
 });
 
-// ── Fetch: Network-first para API, Cache-first para assets ───────────────────
+// ── Fetch ────────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Solo manejar GET
   if (event.request.method !== 'GET') return;
 
-  // Peticiones al Apps Script (API) — siempre ir a la red
+  // API de Google Apps Script — siempre red
   if (url.hostname === 'script.google.com') {
     event.respondWith(
       fetch(event.request).catch(() => new Response('Offline', { status: 503 }))
@@ -51,7 +53,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Assets estáticos — Cache-first con fallback a red
+  // HTML (páginas) — Network-first: siempre intenta obtener la versión más nueva.
+  // Si no hay red, sirve del caché como fallback.
+  const isHTMLRequest =
+    event.request.headers.get('accept')?.includes('text/html') ||
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/';
+
+  if (isHTMLRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // JS, imágenes, CSS — Cache-first con fallback a red (para funcionamiento offline)
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
@@ -62,10 +84,7 @@ self.addEventListener('fetch', (event) => {
         const clone = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return response;
-      }).catch(() => {
-        // Sin red y sin caché — respuesta vacía para no romper la app
-        return new Response('', { status: 503 });
-      });
+      }).catch(() => new Response('', { status: 503 }));
     })
   );
 });
