@@ -263,11 +263,9 @@ export default function Inicio() {
   );
 }
 
-}
-
 function crearEstilos(scale, fs, width) {
   return StyleSheet.create({
-  contenedor: { flex: 1, backgroundColor: '#09090B' },
+    contenedor: { flex: 1, backgroundColor: '#09090B' },
 
   // Glows
   bgGlow1: {
