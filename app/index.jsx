@@ -1,11 +1,11 @@
 // app/index.jsx
 // Pantalla principal — diseño premium oscuro completo
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   View, Text, FlatList, StyleSheet, TouchableOpacity,
-  RefreshControl, ActivityIndicator, Platform, Alert, Image,
-  Animated, Easing, Dimensions, PixelRatio, StatusBar
+  RefreshControl, ActivityIndicator, Platform, Image,
+  Animated, Easing, PixelRatio, StatusBar, useWindowDimensions
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,13 +14,19 @@ import { getRows } from '../services/googleSheets';
 import { useSync } from '../hooks/useSync';
 import { NOMBRE_EMPRESA } from './config';
 
-const { width } = Dimensions.get('window');
-const BASE_WIDTH = 360;
-const scale = (size) => Math.round((width / BASE_WIDTH) * size);
-const fs    = (size) => Math.round(PixelRatio.roundToNearestPixel((width / BASE_WIDTH) * size));
 const STATUS_H = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
 
 export default function Inicio() {
+  // Usar dimensiones reactivas y cap en 430px para que en desktop
+  // los tamaños se calculen igual que en un celular.
+  const { width: rawWidth } = useWindowDimensions();
+  const width = Math.min(rawWidth, 430);
+  const BASE_WIDTH = 360;
+  const scale = (size) => Math.round((width / BASE_WIDTH) * size);
+  const fs = (size) => Math.round(PixelRatio.roundToNearestPixel((width / BASE_WIDTH) * size));
+
+  const estilos = useMemo(() => crearEstilos(scale, fs, width), [width]);
+
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [reportes, setReportes]           = useState([]);
@@ -257,7 +263,10 @@ export default function Inicio() {
   );
 }
 
-const estilos = StyleSheet.create({
+}
+
+function crearEstilos(scale, fs, width) {
+  return StyleSheet.create({
   contenedor: { flex: 1, backgroundColor: '#09090B' },
 
   // Glows
@@ -382,4 +391,5 @@ const estilos = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   fabTexto: { color: '#FFF', fontSize: fs(16), fontWeight: '800', letterSpacing: 0.4 },
-});
+  });
+}
