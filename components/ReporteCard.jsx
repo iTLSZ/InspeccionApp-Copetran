@@ -1,18 +1,14 @@
 // components/ReporteCard.jsx
 // Card premium: foto izquierda + contenido derecha + botón editar
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Image,
-  Modal, Pressable, Animated, Platform, Dimensions, PixelRatio
+  Modal, Pressable, Animated, Platform, PixelRatio, useWindowDimensions
 } from 'react-native';
 import { EditReporteModal } from './EditReporteModal';
 import { normalizeImageUrl } from '../services/googleSheets';
 
-const { width } = Dimensions.get('window');
-const BASE_WIDTH = 360;
-const scale = (size) => Math.round((width / BASE_WIDTH) * size);
-const fs    = (size) => Math.round(PixelRatio.roundToNearestPixel((width / BASE_WIDTH) * size));
 
 const COMPONENTES = {
   'DEFENSAS':           { color: '#3B82F6', emoji: '🛡️' },
@@ -35,6 +31,13 @@ const COMPONENTES = {
 const DEFAULT_INFO = { color: '#6366F1', emoji: '📋' };
 
 export function ReporteCard({ reporte, onActualizado }) {
+  const { width: rawWidth } = useWindowDimensions();
+  const width = Math.min(rawWidth, 430);
+  const BASE_WIDTH = 360;
+  const scale = (size) => Math.round((width / BASE_WIDTH) * size);
+  const fs = (size) => Math.round(PixelRatio.roundToNearestPixel((width / BASE_WIDTH) * size));
+  const estilos = useMemo(() => crearEstilos(scale, fs, width), [width]);
+
   const info = COMPONENTES[reporte.componente] || DEFAULT_INFO;
   const [verFoto, setVerFoto]     = useState(false);
   const [editando, setEditando]   = useState(false);
@@ -192,7 +195,8 @@ export function ReporteCard({ reporte, onActualizado }) {
   );
 }
 
-const estilos = StyleSheet.create({
+function crearEstilos(scale, fs, width) {
+  return StyleSheet.create({
   card: {
     marginBottom: scale(13),
     borderRadius: scale(18),
@@ -309,4 +313,5 @@ const estilos = StyleSheet.create({
     shadowOpacity: 0.4, shadowRadius: scale(8),
   },
   modalCerrarTexto: { color: '#FFF', fontWeight: '800', fontSize: fs(15), letterSpacing: 0.4 },
-});
+  });
+}
